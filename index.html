@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Akij Commodities Limited — Live Control Tower</title>
+<style>
+  :root{
+    --bg:#0a0f1c; --panel:#101828; --panel2:#0c1424; --border:#1e2a44;
+    --text:#e7eefc; --muted:#8ea0bd; --faint:#5c6c8a;
+    --accent:#38bdf8; --accent2:#22d3ee;
+    --bull:#34d399; --bear:#f87171; --neut:#94a3b8; --warn:#f59e0b;
+    --sup:#22c55e; --dem:#38bdf8; --fin:#a78bfa;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--text);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .app{min-height:100vh;display:flex;flex-direction:column}
+  .topbar{display:flex;align-items:center;gap:14px;padding:0 18px;height:56px;border-bottom:1px solid var(--border);background:var(--panel2)}
+  .logo{font-weight:800;font-size:15px;letter-spacing:.3px}
+  .logo b{color:var(--accent)}
+  .live{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+  .live .dot{width:8px;height:8px;border-radius:50%;background:var(--bull);box-shadow:0 0 8px var(--bull);animation:p 1.6s infinite}
+  @keyframes p{50%{opacity:.35}}
+  .clock{margin-left:auto;color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+  .main{padding:16px 20px;display:flex;flex-direction:column;gap:16px}
+
+  .viewbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .seg{display:flex;background:#0e1628;border:1px solid var(--border);border-radius:9px;overflow:hidden}
+  .seg button{border:none;background:none;color:var(--muted);padding:9px 16px;font-size:13px;cursor:pointer;border-right:1px solid var(--border)}
+  .seg button:last-child{border-right:none}
+  .seg button.on{background:#182a4a;color:var(--accent)}
+  .field{display:flex;flex-direction:column;gap:3px}
+  .field label{font-size:10px;text-transform:uppercase;color:var(--faint);letter-spacing:.6px}
+  select{background:#16213a;border:1px solid var(--border);color:var(--text);border-radius:7px;padding:8px 12px;font-size:14px;min-width:220px}
+  select:focus{outline:none;border-color:var(--accent)}
+  .spacer{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .pill{background:#16213a;border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--muted)}
+  .pill b{color:var(--accent2)}
+
+  .row{display:grid;gap:16px}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g2{grid-template-columns:1.3fr 1fr}
+  @media(max-width:1100px){.g4,.g3,.g2{grid-template-columns:1fr 1fr}}
+  @media(max-width:640px){.g4,.g3,.g2{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px}
+  .h{display:flex;align-items:center;gap:8px;margin-bottom:14px}
+  .h .t{font-weight:700;font-size:14px}
+  .h .sub{color:var(--faint);font-size:11px;margin-left:auto}
+  .h .ic{font-size:16px}
+
+  /* index cards */
+  .idx{display:flex;flex-direction:column;gap:12px}
+  .idx .card{padding:13px 14px;cursor:pointer;transition:border-color .15s,transform .15s}
+  .idx .card:hover{border-color:var(--accent);transform:translateY(-1px)}
+  .idx .nm{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+  .idx .val{font-size:22px;font-weight:800;margin-top:5px;font-variant-numeric:tabular-nums}
+  .idx .val small{font-size:12px;font-weight:500;color:var(--muted)}
+  .idx .foot{display:flex;align-items:center;gap:6px;margin-top:6px;font-size:11px}
+  .up{color:var(--bull)} .dn{color:var(--bear)} .fl{color:var(--neut)}
+  .src{color:var(--faint);font-size:10px;display:inline-flex;align-items:center;gap:4px;margin-left:auto}
+
+  /* risk matrix */
+  .risk{display:flex;flex-direction:column;gap:9px}
+  .risk .r{display:grid;grid-template-columns:1fr 90px 60px;gap:10px;align-items:center;font-size:12.5px}
+  .risk .r .nm{color:var(--text)}
+  .risk .r .lv{text-align:right;font-weight:700;font-size:11px}
+  .lv.high{color:var(--bear)} .lv.mod{color:var(--warn)} .lv.low{color:var(--bull)}
+  .risk .bar{height:7px;background:#16213a;border-radius:4px;overflow:hidden}
+  .risk .bar i{display:block;height:100%;border-radius:4px}
+
+  /* flows */
+  .flow{display:flex;flex-direction:column;gap:10px}
+  .flow .f{border:1px solid var(--border);border-radius:9px;padding:10px 12px;background:var(--panel2)}
+  .flow .f .top{display:flex;align-items:center;gap:8px}
+  .flow .f .cm{font-weight:700;font-size:13px}
+  .flow .f .dir{font-size:10px;font-weight:700;padding:1px 8px;border-radius:10px}
+  .dir.in{background:#14351f;color:var(--bull)} .dir.out{background:#3a3120;color:var(--warn)}
+  .flow .f .cnt{margin-top:6px;font-size:12px;color:var(--muted)}
+
+  /* ports */
+  .port{display:flex;flex-direction:column;gap:10px}
+  .port .p{display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:9px;padding:10px 12px;background:var(--panel2)}
+  .port .p .nm{font-weight:700;flex:1}
+  .port .p .qt{font-size:12px;color:var(--muted)}
+  .port .p .st{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
+  .st.ok{background:#14351f;color:var(--bull)} .st.warn{background:#3a3120;color:var(--warn)} .st.crit{background:#3a1f27;color:var(--bear)}
+
+  /* deep dive */
+  .tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+  .tabs button{border:1px solid var(--border);background:#0e1628;color:var(--muted);padding:9px 16px;border-radius:8px;font-size:13px;cursor:pointer;display:flex;gap:8px;align-items:center}
+  .tabs button.on{border-color:var(--accent);color:var(--accent);background:#12233d}
+  .tabs button .cnt{background:#233355;color:var(--accent2);border-radius:10px;padding:0 7px;font-size:11px}
+  .grp{margin-bottom:16px}
+  .grp .gname{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--faint);margin:0 0 7px 2px}
+  .items{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  @media(max-width:700px){.items{grid-template-columns:1fr}}
+  .item{display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:9px;padding:10px 12px;background:var(--panel2);cursor:pointer;text-decoration:none;color:var(--text);transition:border-color .15s}
+  .item:hover{border-color:var(--accent)}
+  .item .it{flex:1;font-size:13px}
+  .item .tl{font-size:10.5px;color:var(--faint);white-space:nowrap}
+  .item .ext{color:var(--faint);font-size:12px}
+  .item.nolink{opacity:.55;cursor:default}
+  .item .side-tag{width:3px;align-self:stretch;border-radius:3px}
+  .side-tag.supply{background:var(--sup)} .side-tag.demand{background:var(--dem)} .side-tag.finance{background:var(--fin)}
+
+  .note{color:var(--faint);font-size:11px;padding:2px 0}
+  .empty{color:var(--faint);padding:30px;text-align:center}
+  a.item{display:flex}
+
+  /* decision matrix */
+  .dm-banner{border:1px solid #3a3120;background:linear-gradient(135deg,#1a1408,#241a08);border-radius:12px;padding:14px 16px;margin-bottom:16px}
+  .dm-banner .tag{display:inline-block;background:#3a3120;color:var(--warn);font-weight:800;font-size:11px;letter-spacing:1px;padding:2px 10px;border-radius:10px;margin-bottom:6px}
+  .dm-banner .read{font-size:14px;line-height:1.6;color:#f3e6c8}
+  .dm-banner .read b{color:var(--warn)}
+  .dm-wrap{overflow-x:auto}
+  .dm-table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:980px}
+  .dm-table th{color:var(--faint);text-align:left;font-weight:600;padding:9px 10px;border-bottom:1px solid var(--border);text-transform:uppercase;font-size:10px;letter-spacing:.5px;white-space:nowrap}
+  .dm-table td{padding:9px 10px;border-bottom:1px solid #18223a;vertical-align:top}
+  .dm-table td.cm{font-weight:700;font-size:13px;white-space:nowrap}
+  .sig{display:inline-block;font-weight:800;font-size:13px;margin-right:5px}
+  .sig.bull{color:var(--bull)} .sig.bear{color:var(--bear)} .sig.neut{color:var(--neut)}
+  .factor-txt{color:var(--muted);font-size:11.5px}
+  .factor-txt .live{color:var(--accent2);font-weight:700}
+  .fobval{font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
+  .rec{display:inline-block;font-weight:800;font-size:11.5px;padding:3px 10px;border-radius:8px;white-space:nowrap}
+  .rec.buy{background:#14351f;color:var(--bull)}
+  .rec.partial{background:#3a3120;color:var(--warn)}
+  .rec.hold{background:#24304a;color:var(--neut)}
+  .rec.defer{background:#1c2436;color:var(--faint)}
+  .conv{display:flex;align-items:center;gap:6px;margin-top:5px;font-size:10px;color:var(--faint)}
+  .conv i{height:5px;border-radius:3px;background:#233355}
+  .dm-comment{margin-top:16px}
+  .dm-comment .box{border:1px solid var(--border);border-radius:10px;padding:12px 14px;background:var(--panel2);margin-bottom:10px}
+  .dm-comment .cm-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .dm-comment .cm-name{font-weight:700;font-size:14px}
+  .dm-comment .cm-txt{color:var(--muted);font-size:12.5px;line-height:1.6}
+  .dm-comment .cm-txt b{color:var(--text)}
+  .legend{display:flex;gap:16px;margin-top:10px;font-size:11px;color:var(--muted);flex-wrap:wrap}
+
+  /* live price ticker */
+  .ticker{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:8px 10px}
+  .pt{display:flex;flex-direction:column;gap:1px;border:1px solid var(--border);border-radius:8px;padding:6px 11px;background:#0e1628;min-width:118px}
+  .pt b{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.3px}
+  .pt .px{font-size:17px;font-weight:800;font-variant-numeric:tabular-nums}
+  .pt .ch{font-size:11px;font-weight:700}
+  .up{color:var(--bull)} .dn{color:var(--bear)}
+  .livebar{display:flex;gap:12px;align-items:center;font-size:11px;color:var(--faint);padding:1px 2px 0}
+  .livebar .live{display:inline-flex;align-items:center;gap:5px;color:var(--bull)}
+  .livebar .live .dot{width:7px;height:7px;border-radius:50%;background:var(--bull);box-shadow:0 0 7px var(--bull);animation:p 1.4s infinite}
+  .livebar .stale{color:var(--warn)}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="logo">AKIJ COMMODITIES <b>LIVE CONTROL TOWER</b></div>
+    <div class="live"><span class="dot"></span> monitoring Chittagong · Kutubdia · Mongla</div>
+    <span class="clock" id="clock">—</span>
+  </div>
+
+  <div class="main">
+    <div class="viewbar">
+      <div class="seg" id="seg">
+        <button class="on" data-view="macro">Macro Control Tower</button>
+        <button data-view="dive">Commodity Deep Dive</button>
+        <button data-view="decision">Purchase Decision Matrix</button>
+      </div>
+      <div class="field" id="commodityField" style="display:none">
+        <label>Commodity</label>
+        <select id="commodity"></select>
+      </div>
+      <div class="spacer">
+        <span class="pill">Source register <b id="nItems">—</b></span>
+        <span class="pill">Meeting <b>#16</b></span>
+        <span class="pill" id="livePill">↻ live feed</span>
+      </div>
+    </div>
+
+    <div class="ticker" id="priceticker"></div>
+    <div class="livebar"><span class="live"><span class="dot"></span> LIVE</span><span>updated <span id="pxTime">—</span> BDT</span><span>source: CBOT/ICE front-month futures · auto-refresh 30s</span></div>
+
+    <div id="macro"></div>
+    <div id="dive" style="display:none"></div>
+    <div id="decision" style="display:none"></div>
+
+    <div class="note">Every metric below links to the live analysis document in the ARL/ACL "Source File" register (Supply / Demand / Finance chapters). Index values marked "est." are interface placeholders — open the source doc for the authoritative figure.</div>
+    <div class="note" style="color:var(--warn)">🔒 View-only. This dashboard is regenerated only when the source register changes. Current data snapshot: Source File modified 08 Sep 2026 15:55 BDT (last edit: Ellin Ahmed).</div>
+  </div>
+</div>
+
+<script src="ctr-data.js"></script>
+<script>
+/* ---------- Macro view static configuration (links = real register sources) ---------- */
+const MACRO = {
+  energy: [
+    {nm:"World Bunker Price — LSFO", val:"est.", unit:"USD/mt", d:"Strait of Hormuz reopening — easing", c:"dn",
+     link:"https://docs.google.com/spreadsheets/d/1cRvhPMI7KWDjQSoB6qdN3uVkWqNzQVvmphqQqRQBC08/edit?gid=130214077"},
+    {nm:"World Bunker Price — MGO", val:"est.", unit:"USD/mt", d:"watch Brent crude days-wise", c:"fl",
+     link:"https://docs.google.com/spreadsheets/d/1cRvhPMI7KWDjQSoB6qdN3uVkWqNzQVvmphqQqRQBC08/edit?gid=130214077"},
+    {nm:"Coal Index", val:"est.", unit:"index", d:"recent coal index tracked", c:"fl",
+     link:"https://docs.google.com/spreadsheets/d/1OuiFECGuHcd52iTDHJFV91qUOwxBZBnwlnQEqISAFXs/edit?gid=1498560575"},
+    {nm:"Fuel Pricing Strategy", val:"est.", unit:"—", d:"oil price update", c:"fl",
+     link:"https://docs.google.com/spreadsheets/d/1rNRANs_RBdmXrvar7IiWyH2WXva7Khx_yQ5TTHPWXi0/edit?gid=0"}
+  ],
+  ports:[
+    {nm:"Chittagong Outer Anchorage", qt:"line-up tracked in vessel registers", st:"warn"},
+    {nm:"Kutubdia (lighterage)", qt:"Wheat & Corn berthing window Jan–Apr'26", st:"ok"},
+    {nm:"Mongla Port", qt:"secondary entry — pulses & pulses", st:"ok"},
+    {nm:"Vessel fixed — recent / 3 months", qt:"see consignment & vessel registers", st:"warn"}
+  ],
+  risk:[
+    {nm:"Shipping choke point — Strait of Hormuz", lv:"MODERATE", p:55, c:"var(--warn)"},
+    {nm:"Weather disruption — origin crop risk", lv:"WATCH", p:45, c:"var(--warn)"},
+    {nm:"Currency — BDT/USD volatility", lv:"ELEVATED", p:72, c:"var(--bear)"},
+    {nm:"G2G / Tender alerts — Govt import (USA)", lv:"ACTIVE", p:60, c:"var(--warn)"}
+  ],
+  flows:[
+    {cm:"Wheat", dir:"in", cnt:"Top importer: Egypt · origins RU/UA/AR/CA — see Top Importer & Wheat Import Qty by Origin",
+     link:"https://docs.google.com/spreadsheets/d/1Lh4DgyiAHTaDsTv5_bUkRkRv4FRLYVgohOv5vSMTBP0/edit?gid=0"},
+    {cm:"Maize", dir:"in", cnt:"Top importer: China · origins US/BR/AR/UA — see Maize Import data",
+     link:"https://docs.google.com/spreadsheets/d/1LMlP2DvzaP7loL82nevZVgXAHJbKfIsW/edit?gid=166847488"},
+    {cm:"SBM", dir:"in", cnt:"Top importer: Bangladesh · origins BR/US/IN — see SBM Import data & Top 20 Importers",
+     link:"https://docs.google.com/spreadsheets/d/1iFweLWL7N0pJCT3hb31ukM24E8iicfpV/edit"}
+  ],
+  quick:[
+    {nm:"Offer Price", link:"https://docs.google.com/spreadsheets/d/1RLgIkcB5T8izsM-sd2xfRceSKG0bGebOgDv2aRNUFRQ/edit?gid=0"},
+    {nm:"Latest Market Freight Price", link:"https://docs.google.com/spreadsheets/d/1bVwDet98xBSIKdrGt6_-X3QcWacju_KKbAtReeC9aJ4/edit?gid=0"},
+    {nm:"Freight Price Update", link:"https://docs.google.com/spreadsheets/d/1av7FH4-vG-CETG_evej1X_yb6Nypz7DP5AuxjORQOcA/edit?gid=0"},
+    {nm:"SBM Futures Quote", link:"https://docs.google.com/spreadsheets/d/1LL1FBtHIar39Nw8Z7T94BTnIPMskEYX4YE4Sm2I-AJQ/edit?gid=0"},
+    {nm:"Updated News (AEL)", link:"https://docs.google.com/spreadsheets/d/1wtqkLV2p6OkeygJ0K7e0X3lAXXCquO-3A0_gG00t7Ks/edit?gid=0"},
+    {nm:"Updated News — Fastmarket", link:"https://docs.google.com/document/d/1LN02mWlXbcKOosiKrbRHOKD511rdJQQWrXwjoHtMwkc/edit?tab=t.0"}
+  ]
+};
+
+const SIDE_META = { supply:{label:"Supply Side", tag:"supply", ic:"🌾"}, demand:{label:"Demand Side", tag:"demand", ic:"🛒"}, finance:{label:"Finance Side", tag:"finance", ic:"💰"} };
+
+const $=id=>document.getElementById(id);
+const state={view:"macro", commodity:null, side:"supply"};
+
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");}
+function openLink(u){ if(u) window.open(u,"_blank"); }
+
+/* ---------- MACRO ---------- */
+function renderMacro(){
+  const energy = MACRO.energy.map(e=>`<div class="card" onclick="openLink('${e.link}')">
+      <div class="nm">${e.nm}</div>
+      <div class="val">${e.val} <small>${e.unit}</small></div>
+      <div class="foot"><span class="${e.c}">${e.d}</span><span class="src">↗ source ↗</span></div>
+    </div>`).join('');
+
+  const ports = MACRO.ports.map(p=>`<div class="port" style="margin:0"><div class="p">
+      <span class="nm">${p.nm}</span><span class="qt">${p.qt}</span><span class="st ${p.st}">${p.st}</span></div></div>`).join('');
+
+  const risk = MACRO.risk.map(r=>`<div class="r"><span class="nm">${r.nm}</span>
+      <span class="bar"><i style="width:${r.p}%;background:${r.c}"></i></span>
+      <span class="lv ${r.lv==="ELEVATED"||r.lv==="ACTIVE"?"high":r.lv==="HIGH"?"high":"mod"}">${r.lv}</span></div>`).join('');
+
+  const flows = MACRO.flows.map(f=>`<div class="f" onclick="openLink('${f.link}')" style="cursor:pointer">
+      <div class="top"><span class="cm">${f.cm}</span><span class="dir ${f.dir==='in'?'in':'out'}">IMPORT</span></div>
+      <div class="cnt">${f.cnt}</div></div>`).join('');
+
+  const quick = MACRO.quick.map(q=>`<a class="item" href="${q.link}" target="_blank">
+      <span class="it">${q.nm}</span><span class="ext">↗</span></a>`).join('');
+
+  $('macro').innerHTML = `
+    <div class="row g4">
+      <div class="card"><div class="h"><span class="ic">⛽</span><span class="t">Global Freight & Energy Index</span><span class="sub">bunker · coal · fuel</span></div>
+        <div class="idx" style="grid-template-columns:1fr;display:grid;gap:10px">${MACRO.energy.map(e=>`<div class="card" onclick="openLink('${e.link}')" style="cursor:pointer"><div class="nm">${e.nm}</div><div class="val">${e.val} <small>${e.unit}</small></div><div class="foot"><span class="${e.c}">${e.d}</span><span class="src">↗ source</span></div></div>`).join('')}</div>
+      </div>
+      <div class="card"><div class="h"><span class="ic">⚓</span><span class="t">Port & Logistics — Real-Time</span><span class="sub">entry points</span></div>
+        <div class="port">${ports}</div>
+      </div>
+      <div class="card"><div class="h"><span class="ic">🛡️</span><span class="t">High-Priority Risk Matrix</span><span class="sub">choke · weather · FX · G2G</span></div>
+        <div class="risk">${risk}</div>
+      </div>
+      <div class="card"><div class="h"><span class="ic">🌐</span><span class="t">Top Country Trade Flows</span><span class="sub">Wheat · Maize · SBM</span></div>
+        <div class="flow">${flows}</div>
+      </div>
+    </div>
+    <div class="row g2">
+      <div class="card"><div class="h"><span class="ic">🔗</span><span class="t">Market & News Quick Links</span><span class="sub">offer · freight · futures · news</span></div>
+        <div class="items">${quick}</div>
+      </div>
+      <div class="card"><div class="h"><span class="ic">📘</span><span class="t">How to use</span><span class="sub">dropdown → items → analysis</span></div>
+        <div style="color:var(--muted);font-size:13px;line-height:1.7">
+          Switch to <b style="color:var(--accent)">Commodity Deep Dive</b>, pick a commodity from the dropdown, then choose
+          <b>Supply / Demand / Finance</b> side. Each item opens its live analysis sheet. Supply side covers crop calendar,
+          procurement strategy, weather & shipping risk, consignment, vessel and market price. Demand side covers monthly
+          demand, import data, selling / purchase / competitor price. Finance side covers costing, actual & forecast P&amp;L.</div>
+      </div>
+    </div>`;
+}
+
+/* ---------- DEEP DIVE ---------- */
+function renderDive(){
+  const coms = Object.keys(window.CTR_DATA);
+  const sel=$('commodity');
+  if(!state.commodity) state.commodity = coms[0];
+  sel.innerHTML = coms.map(c=>`<option ${c===state.commodity?'selected':''}>${c}</option>`).join('');
+
+  const d = window.CTR_DATA[state.commodity] || {supply:[],demand:[],finance:[]};
+  const tabs = Object.keys(SIDE_META).map(s=>{
+    const meta=SIDE_META[s]; const n=(d[s]||[]).length;
+    return `<button class="${state.side===s?'on':''}" data-side="${s}">${meta.ic} ${meta.label} <span class="cnt">${n}</span></button>`;
+  }).join('');
+
+  const items = (d[state.side]||[]);
+  // group by report type
+  const groups={};
+  items.forEach(i=>{ (groups[i.group]=groups[i.group]||[]).push(i); });
+
+  const body = Object.keys(groups).length===0
+    ? `<div class="empty">No ${SIDE_META[state.side].label} reports for ${state.commodity}.</div>`
+    : Object.entries(groups).map(([g,arr])=>`<div class="grp"><div class="gname">${g}</div><div class="items">
+        ${arr.map(i=> i.link
+          ? `<a class="item" href="${i.link}" target="_blank"><span class="side-tag ${SIDE_META[state.side].tag}"></span><span class="it">${esc(i.item)}</span><span class="tl">${esc(i.timeline)}</span><span class="ext">↗</span></a>`
+          : `<div class="item nolink"><span class="side-tag ${SIDE_META[state.side].tag}"></span><span class="it">${esc(i.item)}</span><span class="tl">${esc(i.timeline)}</span><span class="ext">no link</span></div>`
+        ).join('')}
+      </div></div>`).join('');
+
+  $('dive').innerHTML = `
+    <div class="tabs">${tabs}</div>
+    ${body}`;
+}
+
+/* ---------- Purchase Decision Matrix (CEO trading-agent logic) ---------- */
+/* Signals: ▲ bullish/act-now · ▼ bearish/wait · ◆ neutral · provenance LIVE (fetched 2026-09-08) / EST / NEEDS FEED */
+const DECISION = {
+  macro: {
+    tag: "BROAD GRAIN RALLY — SECURE COVERAGE",
+    read: "Black Sea war disruption is driving <b>wheat (+40.8% YoY)</b>, <b>corn (+22.8%)</b> and <b>soybeans (+25.5%)</b> to multi-year highs, all with <b>upward-sloping forward curves</b>. Brent <b>$98</b> and firmer bunker add landed-cost pressure at Chittagong. As a net importer the risk is <b>asymmetric to the upside</b>: secure physical coverage and hedge price — do not wait for a pullback that may not come."
+  },
+  rows: [
+    { cm:"Wheat", cal:{s:"▲",t:"bull",x:"NH harvest done; Argentina Dec–Jan far — supply tight now"},
+      wx:{s:"▲",t:"bull",x:"Black Sea war; Russia exports −50%; terminal attacks"},
+      fob:{s:"▲",t:"bull",x:"$7.32/bu ≈ $269/MT · +40.8% YoY · fwd ↑ $7.82",live:true},
+      news:{s:"▲",t:"bull",x:"Peace talks faltering; buyers switching to AU/AR"},
+      rec:{l:"BUY / SECURE",t:"buy",conv:"HIGH"},
+      c:"Most exposed to the Black Sea shock (+40.8% YoY) with an upward forward curve — waiting is a bet against further escalation. Secure coverage now via Argentina/Australia (already planned Feb–Apr'26), hedge on the forward, avoid unhedged spot. Chittagong landed cost will keep rising." },
+    { cm:"Corn", cal:{s:"▲",t:"bull",x:"US harvest Sep–Oct partial relief; EU ~20-yr low"},
+      wx:{s:"▲",t:"bull",x:"Black Sea corn disruption; EU drought (France 28% G/E)"},
+      fob:{s:"▲",t:"bull",x:"$5.16/bu ≈ $203/MT · +22.8% YoY · fwd ↑ $5.49",live:true},
+      news:{s:"▲",t:"bull",x:"USDA yield cut; China eyeing US purchases"},
+      rec:{l:"BUY / SECURE",t:"buy",conv:"HIGH"},
+      c:"Near a 3-yr high with the Black Sea peak export window (Oct) still ahead — the worst supply risk is not yet behind us. Secure feed-corn requirements now; consider forward, don't chase spot in Oct." },
+    { cm:"Maize", cal:{s:"▼",t:"bear",x:"Local BD rabi harvest Mar–Apr displaces imports"},
+      wx:{s:"◆",t:"neut",x:"Moderate; Black Sea risk as corn but local supply available"},
+      fob:{s:"▲",t:"bull",x:"imports track corn (+22.8% YoY) but local cheaper",live:false},
+      news:{s:"◆",t:"neut",x:"Local harvest healthy; feed off-take strong"},
+      rec:{l:"HOLD / DEFER IMPORT",t:"hold",conv:"MODERATE"},
+      c:"Unlike corn, Akij has a local rabi maize option — defer discretionary import volume and lean on domestic supply where quality allows. Re-assess after the Apr local harvest peak." },
+    { cm:"Soyabean", cal:{s:"▼",t:"bear",x:"US harvest Sep–Oct imminent (near-term supply)"},
+      wx:{s:"◆",t:"neut",x:"US G/E −2pp; moderate; low Black Sea exposure"},
+      fob:{s:"▲",t:"bull",x:"$12.94/bu ≈ $476/MT · +25.5% YoY · fwd ↑ $13.68",live:true},
+      news:{s:"▲",t:"bull",x:"China buying 530k MT since Sep 1; biofuel support"},
+      rec:{l:"PARTIAL COVER",t:"partial",conv:"MOD-HIGH"},
+      c:"Strong Chinese demand and an upward curve, but imminent US harvest may offer a near-term dip. Partial-cover now (~50%), add on harvest pressure. Do not go fully unhedged given the +25.5% YoY run." },
+    { cm:"SBM (Meal)", cal:{s:"◆",t:"neut",x:"Crush-linked; US soy harvest = meal supply pickup"},
+      wx:{s:"◆",t:"neut",x:"Moderate"},
+      fob:{s:"◆",t:"neut",x:"tracks soybeans — live FOB NEEDS FEED",live:false},
+      news:{s:"◆",t:"neut",x:"Neutral-bullish (follows soy complex)"},
+      rec:{l:"HOLD / PARTIAL",t:"hold",conv:"MODERATE"},
+      c:"SBM follows the soy complex but with harvest-driven supply ahead. Cover near-term crush needs; extend on harvest pressure. Confirm FOB via Fastmarkets/Platts before large lots." },
+    { cm:"Lentil", cal:{s:"◆",t:"neut",x:"Canada harvest Aug–Sep underway; AU Nov–Dec"},
+      wx:{s:"▲",t:"bull",x:"Canada drought (Saskatchewan) — supply risk"},
+      fob:{s:"◆",t:"neut",x:"no live feed — NEEDS FEED (CA red firm per register)",live:false},
+      news:{s:"◆",t:"neut",x:"no web feed — NEEDS FEED"},
+      rec:{l:"HOLD / WATCH",t:"hold",conv:"LOW-MOD"},
+      c:"Canada drought supports lentils, but coverage is near-complete per the register and FOB/news feeds are pending. Hold the remaining open position for opportunistic offers; don't chase without fresh price data." },
+    { cm:"Canola", cal:{s:"◆",t:"neut",x:"AU/CA cycle"},
+      wx:{s:"◆",t:"neut",x:"Moderate"},
+      fob:{s:"▲",t:"bull",x:"$831.68 CAD/MT · +1.12% d · +34.2% YoY (ICE)",live:true},
+      news:{s:"◆",t:"neut",x:"no dedicated feed — NEEDS FEED"},
+      rec:{l:"HOLD / WATCH",t:"hold",conv:"LOW"},
+      c:"Canola +34% YoY but quoted in CAD (watch CAD/USD). Limited urgency given the Jul'26 consignment window; act only on confirmed FOB offers." }
+  ]
+};
+
+function renderDecision(){
+  const th = `<tr><th>Commodity</th><th>Crop Calendar</th><th>Weather & Shipping</th><th>FOB Price</th><th>Latest News (web)</th><th style="text-align:center">Recommendation</th></tr>`;
+  const rows = DECISION.rows.map(r=>{
+    const sig=(f)=>`<span class="sig ${f.t}">${f.s}</span>`;
+    const sym = PRICE_SYMS[r.cm];
+    const fob = sym ? `<span class="fobval" data-fob-sym="${sym}">${r.fob.x}</span> <span class="live">LIVE</span>` : `<span class="factor-txt">${r.fob.x}</span>`;
+    return `<tr>
+      <td class="cm">${r.cm}</td>
+      <td>${sig(r.cal)}<span class="factor-txt">${r.cal.x}</span></td>
+      <td>${sig(r.wx)}<span class="factor-txt">${r.wx.x}</span></td>
+      <td>${sig(r.fob)}${fob}</td>
+      <td>${sig(r.news)}<span class="factor-txt">${r.news.x}</span></td>
+      <td style="text-align:center"><span class="rec ${r.rec.t}">${r.rec.l}</span><div class="conv">conviction ${'<i style="background:#34d399"></i>'.repeat(r.rec.conv==='HIGH'?3:r.rec.conv==='MOD-HIGH'?2.5:r.rec.conv==='MODERATE'?2:r.rec.conv==='LOW-MOD'?1.5:1)}</div></td>
+    </tr>`;
+  }).join('');
+  const comments = DECISION.rows.map(r=>`<div class="box">
+      <div class="cm-head"><span class="cm-name">${r.cm}</span><span class="rec ${r.rec.t}">${r.rec.l}</span></div>
+      <div class="cm-txt">${r.c}</div></div>`).join('');
+  $('decision').innerHTML = `
+    <div class="dm-banner"><div class="tag">${DECISION.macro.tag}</div><div class="read">${DECISION.macro.read}</div></div>
+    <div class="dm-wrap"><table class="dm-table">${th}${rows}</table></div>
+    <div class="legend">
+      <span><span class="sig bull">▲</span> supports acting now</span>
+      <span><span class="sig bear">▼</span> supports waiting</span>
+      <span><span class="sig neut">◆</span> neutral / data gap</span>
+      <span>LIVE = fetched 2026-09-08 (Trading Economics)</span>
+      <span>Advisory only — execution rests with the business/Board</span>
+    </div>
+    <div class="dm-comment"><div class="h"><span class="ic">🧭</span><span class="t">CEO Comment — per commodity</span><span class="sub">commercial impact for Akij Commodities</span></div>${comments}</div>`;
+  if(lastPrices) renderDecisionFob(lastPrices);
+}
+
+/* ---------- Live price feed (auto-refresh 30s) ---------- */
+const PRICE_SYMS = { "Wheat":"ZW=F", "Corn":"ZC=F", "Soyabean":"ZS=F", "SBM (Meal)":"ZM=F", "Canola":"RS=F" };
+let lastPrices = null;
+function fmtPrice(v){ if(v==null) return '—'; return v>=1000 ? v.toLocaleString('en-US',{maximumFractionDigits:0}) : v.toFixed(v>=100?1:2); }
+async function refreshPrices(){
+  try{
+    const r = await fetch('/prices',{cache:'no-store'});
+    if(!r.ok) throw new Error('http '+r.status);
+    const j = await r.json();
+    if(j && j.items && j.items.length){
+      lastPrices = j;
+      renderTicker(j); renderDecisionFob(j);
+      const t=document.getElementById('pxTime'); if(t) t.textContent = new Date(j.updated).toLocaleTimeString('en-GB',{timeZone:'Asia/Dhaka'});
+    }
+  }catch(e){
+    const el=document.getElementById('priceticker');
+    if(el && !el.dataset.filled) el.innerHTML = `<span class="note" style="color:var(--warn)">Live feed unavailable — open via the hosted link, not a local file.</span>`;
+  }
+}
+function renderTicker(j){
+  const el=document.getElementById('priceticker'); if(!el) return; el.dataset.filled='1';
+  el.innerHTML = j.items.map(i=>{
+    const up=i.chgPct>=0;
+    return `<div class="pt"><b>${i.name}</b><span class="px">${fmtPrice(i.price)}<span style="font-size:10px;color:var(--faint)"> ${i.unit}</span></span><span class="ch ${up?'up':'dn'}">${up?'▲':'▼'} ${Math.abs(i.chgPct).toFixed(2)}%</span></div>`;
+  }).join('');
+}
+function renderDecisionFob(j){
+  const bySym={}; j.items.forEach(i=>{ bySym[i.sym]=i; });
+  document.querySelectorAll('[data-fob-sym]').forEach(cell=>{
+    const p=bySym[cell.getAttribute('data-fob-sym')];
+    if(p) cell.innerHTML = `${fmtPrice(p.price)} ${p.unit} · <span class="${p.chgPct>=0?'up':'dn'}">${p.chgPct>=0?'+':''}${p.chgPct.toFixed(2)}%</span>`;
+  });
+}
+
+/* ---------- orchestration ---------- */
+function render(){
+  const v = state.view;
+  $('seg').querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.view===v));
+  $('macro').style.display = v==="macro"?"":"none";
+  $('dive').style.display = v==="dive"?"":"none";
+  $('decision').style.display = v==="decision"?"":"none";
+  $('commodityField').style.display = v==="dive"?"":"none";
+  $('nItems').textContent = Object.keys(window.CTR_DATA).length + " commodities";
+  if(v==="macro") renderMacro(); else if(v==="dive") renderDive(); else renderDecision();
+}
+
+$('seg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; state.view=b.dataset.view; render(); });
+$('commodity').addEventListener('change',e=>{ state.commodity=e.target.value; renderDive(); });
+$('dive').addEventListener('click',e=>{ const b=e.target.closest('button[data-side]'); if(!b)return; state.side=b.dataset.side; renderDive(); });
+
+function tick(){ const d=new Date(); $('clock').textContent = d.toLocaleString('en-GB',{timeZone:'Asia/Dhaka',hour12:false}); }
+setInterval(tick,1000); tick();
+render();
+refreshPrices();
+setInterval(refreshPrices,30000);
+</script>
+</body>
+</html>
