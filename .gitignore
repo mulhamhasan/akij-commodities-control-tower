@@ -1,0 +1,4 @@
+.sync.sh
+sync.log
+sync.err.log
+.DS_Store
