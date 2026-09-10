@@ -11,37 +11,51 @@
     --accent:#38bdf8; --accent2:#22d3ee;
     --bull:#34d399; --bear:#f87171; --neut:#94a3b8; --warn:#f59e0b;
     --sup:#22c55e; --dem:#38bdf8; --fin:#a78bfa;
-    --plant:#166534; --harv:#86efac;
+    --input:#16213a; --input2:#0e1628; --active:#182a4a;
+    --plant:#15803d; --harv:#86efac; --harvtx:#0a0f1c;
+    --cardbg:#101828; --cell:#0e1628;
+  }
+  html[data-theme="light"]{
+    --bg:#f3f5fa; --panel:#ffffff; --panel2:#eef1f7; --border:#d9e0ee;
+    --text:#1a2233; --muted:#526082; --faint:#8793ad;
+    --accent:#0284c7; --accent2:#0e7490;
+    --bull:#059669; --bear:#dc2626; --neut:#64748b; --warn:#d97706;
+    --sup:#16a34a; --dem:#0284c7; --fin:#7c3aed;
+    --input:#e6ecf7; --input2:#eef1f7; --active:#dbe7f6;
+    --plant:#16a34a; --harv:#4ade80; --harvtx:#052e16;
+    --cardbg:#ffffff; --cell:#f1f4fa;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:var(--bg);color:var(--text);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
   .app{min-height:100vh;display:flex;flex-direction:column}
-  .topbar{display:flex;align-items:center;gap:14px;padding:0 18px;height:56px;border-bottom:1px solid var(--border);background:var(--panel2)}
+  .topbar{display:flex;align-items:center;gap:12px;padding:0 18px;height:56px;border-bottom:1px solid var(--border);background:var(--panel2)}
   .logo{font-weight:800;font-size:15px;letter-spacing:.3px}
   .logo b{color:var(--accent)}
   .live{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
   .live .dot{width:8px;height:8px;border-radius:50%;background:var(--bull);box-shadow:0 0 8px var(--bull);animation:p 1.6s infinite}
   @keyframes p{50%{opacity:.35}}
   .clock{margin-left:auto;color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
-  .btn{background:#16213a;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 14px;font-size:12.5px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:border-color .15s}
+  .btn{background:var(--input);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 14px;font-size:12.5px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:border-color .15s}
   .btn:hover{border-color:var(--accent)}
-  .btn:active{background:#1c2a4a}
+  .btn:active{background:var(--active)}
   .btn .sp{display:inline-block;transition:transform .6s}
   .btn.spinning .sp{transform:rotate(360deg)}
+  .iconbtn{background:var(--input);border:1px solid var(--border);color:var(--text);border-radius:6px;width:26px;height:26px;font-size:13px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;transition:border-color .15s}
+  .iconbtn:hover{border-color:var(--accent)}
   .lastupd{font-size:10.5px;color:var(--faint)}
   .main{padding:16px 20px;display:flex;flex-direction:column;gap:16px}
 
   .viewbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-  .seg{display:flex;background:#0e1628;border:1px solid var(--border);border-radius:9px;overflow:hidden}
+  .seg{display:flex;background:var(--input2);border:1px solid var(--border);border-radius:9px;overflow:hidden}
   .seg button{border:none;background:none;color:var(--muted);padding:9px 16px;font-size:13px;cursor:pointer;border-right:1px solid var(--border)}
   .seg button:last-child{border-right:none}
-  .seg button.on{background:#182a4a;color:var(--accent)}
+  .seg button.on{background:var(--active);color:var(--accent)}
   .field{display:flex;flex-direction:column;gap:3px}
   .field label{font-size:10px;text-transform:uppercase;color:var(--faint);letter-spacing:.6px}
-  select{background:#16213a;border:1px solid var(--border);color:var(--text);border-radius:7px;padding:8px 12px;font-size:14px;min-width:200px}
+  select{background:var(--input);border:1px solid var(--border);color:var(--text);border-radius:7px;padding:8px 12px;font-size:14px;min-width:200px}
   select:focus{outline:none;border-color:var(--accent)}
   .spacer{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-  .pill{background:#16213a;border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--muted)}
+  .pill{background:var(--input);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--muted)}
   .pill b{color:var(--accent2)}
 
   .row{display:grid;gap:16px}
@@ -50,7 +64,7 @@
   .g2{grid-template-columns:1.3fr 1fr}
   @media(max-width:1100px){.g4,.g3,.g2{grid-template-columns:1fr 1fr}}
   @media(max-width:640px){.g4,.g3,.g2{grid-template-columns:1fr}}
-  .card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:16px}
+  .card{background:var(--cardbg);border:1px solid var(--border);border-radius:12px;padding:16px}
   .h{display:flex;align-items:center;gap:8px;margin-bottom:14px}
   .h .t{font-weight:700;font-size:14px}
   .h .sub{color:var(--faint);font-size:11px;margin-left:auto}
@@ -71,7 +85,7 @@
   .risk .r .nm{color:var(--text)}
   .risk .r .lv{text-align:right;font-weight:700;font-size:11px}
   .lv.high{color:var(--bear)} .lv.mod{color:var(--warn)} .lv.low{color:var(--bull)}
-  .risk .bar{height:7px;background:#16213a;border-radius:4px;overflow:hidden}
+  .risk .bar{height:7px;background:var(--input);border-radius:4px;overflow:hidden}
   .risk .bar i{display:block;height:100%;border-radius:4px}
 
   .flow{display:flex;flex-direction:column;gap:10px}
@@ -90,9 +104,9 @@
   .st.ok{background:#14351f;color:var(--bull)} .st.warn{background:#3a3120;color:var(--warn)} .st.crit{background:#3a1f27;color:var(--bear)}
 
   .tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
-  .tabs button{border:1px solid var(--border);background:#0e1628;color:var(--muted);padding:9px 16px;border-radius:8px;font-size:13px;cursor:pointer;display:flex;gap:8px;align-items:center}
-  .tabs button.on{border-color:var(--accent);color:var(--accent);background:#12233d}
-  .tabs button .cnt{background:#233355;color:var(--accent2);border-radius:10px;padding:0 7px;font-size:11px}
+  .tabs button{border:1px solid var(--border);background:var(--input2);color:var(--muted);padding:9px 16px;border-radius:8px;font-size:13px;cursor:pointer;display:flex;gap:8px;align-items:center}
+  .tabs button.on{border-color:var(--accent);color:var(--accent);background:var(--active)}
+  .tabs button .cnt{background:var(--input);color:var(--accent2);border-radius:10px;padding:0 7px;font-size:11px}
   .grp{margin-bottom:16px}
   .grp .gname{font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:var(--faint);margin:0 0 7px 2px}
   .items{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -111,18 +125,20 @@
   a.item{display:flex}
 
   .dm-banner{border:1px solid #3a3120;background:linear-gradient(135deg,#1a1408,#241a08);border-radius:12px;padding:14px 16px;margin-bottom:16px}
+  html[data-theme="light"] .dm-banner{background:linear-gradient(135deg,#fffbeb,#fef3c7);border:1px solid #fcd34d}
   .dm-banner .tag{display:inline-block;background:#3a3120;color:var(--warn);font-weight:800;font-size:11px;letter-spacing:1px;padding:2px 10px;border-radius:10px;margin-bottom:6px}
+  html[data-theme="light"] .dm-banner .tag{background:#fde68a}
   .dm-banner .read{font-size:14px;line-height:1.6;color:#f3e6c8}
+  html[data-theme="light"] .dm-banner .read{color:#78350f}
   .dm-banner .read b{color:var(--warn)}
   .dm-wrap{overflow-x:auto}
   .dm-table{width:100%;border-collapse:collapse;font-size:12.5px;min-width:980px}
   .dm-table th{color:var(--faint);text-align:left;font-weight:600;padding:9px 10px;border-bottom:1px solid var(--border);text-transform:uppercase;font-size:10px;letter-spacing:.5px;white-space:nowrap}
-  .dm-table td{padding:9px 10px;border-bottom:1px solid #18223a;vertical-align:top}
+  .dm-table td{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:top}
   .dm-table td.cm{font-weight:700;font-size:13px;white-space:nowrap}
   .sig{display:inline-block;font-weight:800;font-size:13px;margin-right:5px}
   .sig.bull{color:var(--bull)} .sig.bear{color:var(--bear)} .sig.neut{color:var(--neut)}
   .factor-txt{color:var(--muted);font-size:11.5px}
-  .factor-txt .live{color:var(--accent2);font-weight:700}
   .fobval{font-weight:700;color:var(--text);font-variant-numeric:tabular-nums}
   .rec{display:inline-block;font-weight:800;font-size:11.5px;padding:3px 10px;border-radius:8px;white-space:nowrap}
   .rec.buy{background:#14351f;color:var(--bull)}
@@ -139,44 +155,65 @@
   .dm-comment .cm-txt b{color:var(--text)}
   .legend{display:flex;gap:16px;margin-top:10px;font-size:11px;color:var(--muted);flex-wrap:wrap}
 
-  /* Crop calendar */
-  .cc-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px}
-  .cc-table{border-collapse:collapse;width:100%;font-size:11.5px;min-width:760px}
-  .cc-table th{color:var(--faint);font-weight:600;padding:7px 6px;border-bottom:1px solid var(--border);text-align:center;text-transform:uppercase;font-size:10px;letter-spacing:.4px;position:sticky;top:0;background:var(--panel2)}
-  .cc-table th:first-child{text-align:left;position:sticky;left:0;z-index:2;min-width:120px}
+  /* Crop calendar — clearer visualization */
+  .cc-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;background:var(--panel2)}
+  .cc-table{border-collapse:collapse;width:100%;font-size:12px;min-width:820px}
+  .cc-table th{color:var(--muted);font-weight:700;padding:10px 6px;border-bottom:2px solid var(--border);text-align:center;text-transform:uppercase;font-size:10.5px;letter-spacing:.4px;position:sticky;top:0;background:var(--panel2);z-index:1}
+  .cc-table th:first-child{text-align:left;position:sticky;left:0;z-index:3;min-width:130px}
   .cc-table th.cur{color:var(--accent2)}
-  .cc-table td{padding:0;border-bottom:1px solid #18223a}
-  .cc-table td.cn{position:sticky;left:0;background:var(--panel2);padding:7px 10px;font-weight:600;white-space:nowrap;border-right:1px solid var(--border)}
+  .cc-table td{padding:0;border-bottom:1px solid var(--border)}
+  .cc-table td.cn{position:sticky;left:0;background:var(--panel2);padding:9px 12px;font-weight:700;white-space:nowrap;border-right:1px solid var(--border);z-index:2}
   .cc-table td.cn small{display:block;color:var(--faint);font-weight:400}
-  .cc-cell{height:30px;min-width:34px;text-align:center;border-right:1px solid #141f36}
-  .cc-cell.plant{background:var(--plant)}
-  .cc-cell.harv{background:var(--harv);color:#0a0f1c}
+  .cc-cell{height:38px;min-width:46px;text-align:center;border-right:1px solid var(--border);font-weight:800;font-size:13px;transition:transform .1s}
+  .cc-cell:hover{transform:scale(1.12);z-index:5;box-shadow:0 0 0 2px var(--accent2)}
+  .cc-cell.plant{background:var(--plant);color:#eafff1}
+  .cc-cell.harv{background:var(--harv);color:var(--harvtx)}
   .cc-cell.other{background:#3a3120;color:var(--warn)}
-  .cc-cell.cur{border:1px solid var(--accent2)}
-  .cc-legend{display:flex;gap:18px;align-items:center;font-size:11px;color:var(--muted);flex-wrap:wrap;margin-top:10px}
-  .sw{width:14px;height:14px;border-radius:3px;display:inline-block;vertical-align:middle;margin-right:5px}
-  .sw.plant{background:var(--plant)} .sw.harv{background:var(--harv)} .sw.inact{background:#16213a;border:1px solid var(--border)}
+  .cc-cell.cur{outline:2px solid var(--accent2);outline-offset:-2px}
+  .cc-cell.glyph{font-size:13px}
+  .cc-legend{display:flex;gap:20px;align-items:center;font-size:12px;color:var(--muted);flex-wrap:wrap;margin-top:12px}
+  .sw{width:18px;height:18px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;margin-right:6px;font-weight:800;font-size:11px}
+  .sw.plant{background:var(--plant);color:#eafff1}
+  .sw.harv{background:var(--harv);color:var(--harvtx)}
+  .sw.inact{background:var(--cell);border:1px solid var(--border)}
 
-  /* sourcing analytics */
   .ana-table{width:100%;border-collapse:collapse;font-size:12px}
   .ana-table th{color:var(--faint);text-align:left;font-weight:600;padding:8px 8px;border-bottom:1px solid var(--border);text-transform:uppercase;font-size:10px;letter-spacing:.4px}
-  .ana-table td{padding:8px;border-bottom:1px solid #18223a}
+  .ana-table td{padding:8px;border-bottom:1px solid var(--border)}
   .stat{display:inline-block;font-weight:700;font-size:11px;padding:2px 9px;border-radius:9px}
   .stat.harvesting{background:#14351f;color:var(--harv)}
   .stat.planting{background:#0c2f1d;color:#4ade80}
   .stat.inactive{background:#1c2436;color:var(--faint)}
   .rule-tag{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:8px;background:#3a3120;color:var(--warn)}
 
-  /* news */
   .news{display:flex;flex-direction:column;gap:10px}
   .news .n{border:1px solid var(--border);border-radius:10px;padding:12px 14px;background:var(--panel2)}
   .news .n .top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
   .news .n .t{font-weight:700;font-size:13.5px}
   .news .n .d{color:var(--faint);font-size:11px}
-  .news .n .cm-tag{font-size:10px;font-weight:700;padding:1px 8px;border-radius:10px;background:#12233d;color:var(--accent)}
+  .news .n .cm-tag{font-size:10px;font-weight:700;padding:1px 8px;border-radius:10px;background:var(--active);color:var(--accent)}
   .news .n .risk{font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px}
   .risk.high{background:#3a1f27;color:var(--bear)} .risk.moderate{background:#3a3120;color:var(--warn)} .risk.low{background:#14351f;color:var(--bull)}
   .news .n .imp{margin-top:7px;font-size:12.5px;color:var(--muted);line-height:1.6}
+
+  /* Insights */
+  .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+  @media(max-width:1100px){.kpis{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:640px){.kpis{grid-template-columns:repeat(2,1fr)}}
+  .kpi{background:var(--cardbg);border:1px solid var(--border);border-radius:12px;padding:14px}
+  .kpi .k{font-size:11px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted)}
+  .kpi .v{font-size:26px;font-weight:800;margin-top:4px;font-variant-numeric:tabular-nums}
+  .kpi .d{font-size:11px;color:var(--faint);margin-top:3px}
+  .heat-cell{text-align:center;font-weight:700;border-radius:6px;padding:6px 2px;font-size:12px;min-width:40px}
+  .heat-cell.g{background:#14351f;color:var(--bull)}
+  .heat-cell.a{background:#3a3120;color:var(--warn)}
+  .heat-cell.r{background:#3a1f27;color:var(--bear)}
+  .insight-line{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--muted);line-height:1.55}
+  .insight-line:last-child{border-bottom:none}
+  .insight-line b{color:var(--text)}
+  .insight-line .dot{color:var(--accent2);font-weight:800;flex-shrink:0}
+  .chip{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:9px;margin:2px 2px 0 0}
+  .chip.buy{background:#14351f;color:var(--bull)} .chip.plant{background:#0c2f1d;color:#4ade80} .chip.gap{background:#3a1f27;color:var(--bear)}
 </style>
 </head>
 <body>
@@ -186,17 +223,19 @@
     <div class="live"><span class="dot"></span> monitoring Chittagong · Kutubdia · Mongla</div>
     <span class="clock" id="clock">—</span>
     <button class="btn" id="refreshBtn" title="Re-pull latest register data"><span class="sp">↻</span> Refresh</button>
+    <button class="iconbtn" id="themeBtn" title="Toggle dark / light mode"><span id="themeIcon">🌙</span></button>
     <span class="lastupd" id="lastupd">—</span>
   </div>
 
   <div class="main">
     <div class="viewbar">
       <div class="seg" id="seg">
-        <button class="on" data-view="macro">Macro Control Tower</button>
-        <button data-view="dive">Commodity Deep Dive</button>
-        <button data-view="decision">Purchase Decision Matrix</button>
-        <button data-view="crop">Crop Calendar &amp; Sourcing</button>
-        <button data-view="news">Market News &amp; Impact</button>
+        <button class="on" data-view="insights">Insights</button>
+        <button data-view="macro">Macro</button>
+        <button data-view="dive">Deep Dive</button>
+        <button data-view="decision">Decision Matrix</button>
+        <button data-view="crop">Crop Calendar</button>
+        <button data-view="news">News &amp; Impact</button>
       </div>
       <div class="field" id="commodityField" style="display:none">
         <label>Commodity</label>
@@ -216,21 +255,20 @@
       </div>
     </div>
 
-    <div id="macro"></div>
+    <div id="insights"></div>
+    <div id="macro" style="display:none"></div>
     <div id="dive" style="display:none"></div>
     <div id="decision" style="display:none"></div>
     <div id="crop" style="display:none"></div>
     <div id="news" style="display:none"></div>
 
-    <div class="note">Every metric below links to the live analysis document in the ARL/ACL "Source File" register (Supply / Demand / Finance chapters). Index values marked "est." are interface placeholders — open the source doc for the authoritative figure.</div>
-    <div class="note" style="color:var(--warn)">🔒 View-only. This dashboard is regenerated when the source register changes. Click <b>↻ Refresh</b> to pull the latest snapshot.</div>
+    <div class="note">Every metric below links to the live analysis document in the ARL/ACL "Source File" register (Supply / Demand / Finance chapters). Click <b>↻ Refresh</b> to pull the latest register snapshot.</div>
   </div>
 </div>
 
 <script src="ctr-data.js"></script>
 <script src="ctr-crop.js"></script>
 <script>
-/* ---------- Macro view static configuration (links = real register sources) ---------- */
 const MACRO = {
   energy: [
     {nm:"World Bunker Price — LSFO", val:"est.", unit:"USD/mt", d:"Strait of Hormuz reopening — easing", c:"dn",
@@ -276,10 +314,96 @@ const SIDE_META = { supply:{label:"Supply Side", tag:"supply", ic:"🌾"}, deman
 const MONTHS = (window.CROP_DATA && window.CROP_DATA.months) || ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 const $=id=>document.getElementById(id);
-const state={view:"macro", commodity:null, side:"supply", cropCommodity:null, meeting:null};
+const state={view:"insights", commodity:null, side:"supply", cropCommodity:null, meeting:null};
 
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");}
 function openLink(u){ if(u) window.open(u,"_blank"); }
+
+/* ---------- INSIGHTS (analysis layer) ---------- */
+function computeInsights(){
+  const d = window.CTR_DATA;
+  const coms = Object.keys(d);
+  let total=0, withLink=0, financeCom=0, supplyCom=0, demandCom=0;
+  const noLink=[];
+  const per={};
+  coms.forEach(c=>{
+    const dd=d[c];
+    per[c]={supply:dd.supply.length, demand:dd.demand.length, finance:dd.finance.length, noLink:0};
+    ['supply','demand','finance'].forEach(s=>{
+      (dd[s]||[]).forEach(it=>{ total++; if(it.link){withLink++;} else {noLink.push({com:c,side:s,item:it.item}); per[c].noLink++;} });
+    });
+    if(dd.finance.length>0) financeCom++;
+    if(dd.supply.length>0) supplyCom++;
+    if(dd.demand.length>0) demandCom++;
+  });
+  const noFinance = coms.filter(c=>(d[c].finance||[]).length===0);
+  const noSupply = coms.filter(c=>(d[c].supply||[]).length===0);
+  const noDemand = coms.filter(c=>(d[c].demand||[]).length===0);
+  return {coms, total, withLink, missing:noLink.length, noLink, financeCom, supplyCom, demandCom, noFinance, noSupply, noDemand, per};
+}
+
+function renderInsights(){
+  const I = computeInsights();
+  const C = window.CROP_DATA;
+  const cur = currentMonthInfo();
+
+  // sourcing status this month (from crop calendar)
+  let harvesting=[], planting=[];
+  Object.entries(C.calendars).forEach(([com, cal])=>{
+    (cal||[]).forEach(c=>{
+      const ph = c.m[cur.name];
+      if(ph==='harvesting') harvesting.push(c.country+' · '+com);
+      else if(ph==='planting') planting.push(c.country+' · '+com);
+    });
+  });
+
+  const kpis = [
+    {k:"Commodities tracked", v:Object.keys(window.CTR_DATA).length, d:"from the Source File register"},
+    {k:"Reports linked", v:I.total, d:"supply + demand + finance"},
+    {k:"With source link", v:I.withLink, d:"open the live doc"},
+    {k:"Missing link", v:I.missing, d:"gaps to fill"},
+    {k:"Finance tracked", v:I.financeCom+" / "+I.coms.length, d:"commodities with finance"},
+    {k:"Harvesting now", v:harvesting.length, d:"origins in buy window"}
+  ].map(k=>`<div class="kpi"><div class="k">${k.k}</div><div class="v">${k.v}</div><div class="d">${k.d}</div></div>`).join('');
+
+  // coverage heatmap
+  const heat = Object.keys(window.CTR_DATA).map(c=>{
+    const p=I.per[c];
+    const cell=(n,label)=> `<span class="heat-cell ${n===0?'r':n<3?'a':'g'}" title="${c} · ${label}: ${n}">${n}</span>`;
+    return `<tr><td class="cm">${esc(c)}</td><td>${cell(p.supply,'supply')}</td><td>${cell(p.demand,'demand')}</td><td>${cell(p.finance,'finance')}</td></tr>`;
+  }).join('');
+
+  // auto-generated insight bullets
+  const bullets = [];
+  bullets.push(`<b>${I.missing}</b> reports have no source link yet — the dashboard will flag these until a link is added in the register.`);
+  if (I.noFinance.length) bullets.push(`<b>${I.noFinance.length}</b> commodities lack finance coverage: <b>${I.noFinance.map(esc).join(', ')}</b>.`);
+  if (I.noSupply.length) bullets.push(`<b>${I.noSupply.length}</b> commodities have no supply-side reports: <b>${I.noSupply.map(esc).join(', ')}</b>.`);
+  if (harvesting.length) bullets.push(`Buy window now — harvesting origins: ${harvesting.map(h=>'<b>'+esc(h)+'</b>').join(', ')}.`);
+  if (planting.length) bullets.push(`Future supply — planting now: ${planting.map(p=>'<b>'+esc(p)+'</b>').join(', ')}.`);
+
+  const missingList = I.noLink.slice(0,12).map(m=>`<span class="chip gap">${esc(m.com)} · ${esc(m.item)}</span>`).join('');
+
+  $('insights').innerHTML = `
+    <div class="kpis">${kpis}</div>
+    <div class="row g2" style="margin-top:16px">
+      <div class="card"><div class="h"><span class="ic">🧭</span><span class="t">Key insights</span><span class="sub">auto-derived from the register</span></div>
+        ${bullets.map(b=>`<div class="insight-line"><span class="dot">›</span><span>${b}</span></div>`).join('')}
+      </div>
+      <div class="card"><div class="h"><span class="ic">🚦</span><span class="t">Sourcing status — ${cur.full}</span><span class="sub">live crop window</span></div>
+        <div style="margin-bottom:8px"><span class="chip buy">HARVESTING</span> ${harvesting.map(esc).join(', ')||'<span style="color:var(--faint)">none this month</span>'}</div>
+        <div><span class="chip plant">PLANTING</span> ${planting.map(esc).join(', ')||'<span style="color:var(--faint)">none this month</span>'}</div>
+      </div>
+    </div>
+    <div class="row g2" style="margin-top:16px">
+      <div class="card"><div class="h"><span class="ic">📊</span><span class="t">Coverage matrix</span><span class="sub">reports per commodity · supply / demand / finance</span></div>
+        <div class="dm-wrap"><table class="dm-table" style="min-width:420px"><thead><tr><th>Commodity</th><th>Supply</th><th>Demand</th><th>Finance</th></tr></thead><tbody>${heat}</tbody></table></div>
+        <div class="legend" style="margin-top:10px"><span><span class="heat-cell g" style="padding:1px 8px">3+</span> good</span><span><span class="heat-cell a" style="padding:1px 8px">1–2</span> thin</span><span><span class="heat-cell r" style="padding:1px 8px">0</span> gap</span></div>
+      </div>
+      <div class="card"><div class="h"><span class="ic">⚠️</span><span class="t">Reports missing a link</span><span class="sub">fill in the register to activate</span></div>
+        ${missingList ? `<div style="line-height:2">${missingList}</div>` : `<div class="empty">No gaps — every report has a source link.</div>`}
+      </div>
+    </div>`;
+}
 
 /* ---------- MACRO ---------- */
 function renderMacro(){
@@ -288,33 +412,28 @@ function renderMacro(){
       <div class="val">${e.val} <small>${e.unit}</small></div>
       <div class="foot"><span class="${e.c}">${e.d}</span><span class="src">↗ source ↗</span></div>
     </div>`).join('');
-
   const ports = MACRO.ports.map(p=>`<div class="port" style="margin:0"><div class="p">
       <span class="nm">${p.nm}</span><span class="qt">${p.qt}</span><span class="st ${p.st}">${p.st}</span></div></div>`).join('');
-
   const risk = MACRO.risk.map(r=>`<div class="r"><span class="nm">${r.nm}</span>
       <span class="bar"><i style="width:${r.p}%;background:${r.c}"></i></span>
       <span class="lv ${r.lv==="ELEVATED"||r.lv==="ACTIVE"?"high":r.lv==="HIGH"?"high":"mod"}">${r.lv}</span></div>`).join('');
-
   const flows = MACRO.flows.map(f=>`<div class="f" onclick="openLink('${f.link}')" style="cursor:pointer">
       <div class="top"><span class="cm">${f.cm}</span><span class="dir ${f.dir==='in'?'in':'out'}">IMPORT</span></div>
       <div class="cnt">${f.cnt}</div></div>`).join('');
-
   const quick = MACRO.quick.map(q=>`<a class="item" href="${q.link}" target="_blank">
       <span class="it">${q.nm}</span><span class="ext">↗</span></a>`).join('');
-
   $('macro').innerHTML = `
     <div class="row g4">
-      <div class="card"><div class="h"><span class="ic">⛽</span><span class="t">Global Freight & Energy Index</span><span class="sub">bunker · coal · fuel</span></div>
+      <div class="card"><div class="h"><span class="ic">⛽</span><span class="t">Global Freight & Energy</span><span class="sub">bunker · coal · fuel</span></div>
         <div class="idx" style="grid-template-columns:1fr;display:grid;gap:10px">${energy}</div>
       </div>
       <div class="card"><div class="h"><span class="ic">⚓</span><span class="t">Port & Logistics</span><span class="sub">entry points</span></div>
         <div class="port">${ports}</div>
       </div>
-      <div class="card"><div class="h"><span class="ic">🛡️</span><span class="t">High-Priority Risk Matrix</span><span class="sub">choke · weather · FX · G2G</span></div>
+      <div class="card"><div class="h"><span class="ic">🛡️</span><span class="t">Risk Matrix</span><span class="sub">choke · weather · FX · G2G</span></div>
         <div class="risk">${risk}</div>
       </div>
-      <div class="card"><div class="h"><span class="ic">🌐</span><span class="t">Top Country Trade Flows</span><span class="sub">Wheat · Maize · SBM</span></div>
+      <div class="card"><div class="h"><span class="ic">🌐</span><span class="t">Trade Flows</span><span class="sub">Wheat · Maize · SBM</span></div>
         <div class="flow">${flows}</div>
       </div>
     </div>
@@ -322,11 +441,11 @@ function renderMacro(){
       <div class="card"><div class="h"><span class="ic">🔗</span><span class="t">Market & News Quick Links</span><span class="sub">offer · freight · futures · news</span></div>
         <div class="items">${quick}</div>
       </div>
-      <div class="card"><div class="h"><span class="ic">📘</span><span class="t">How to use</span><span class="sub">dropdown → items → analysis</span></div>
+      <div class="card"><div class="h"><span class="ic">📘</span><span class="t">How to use</span><span class="sub">tabs → dropdown → analysis</span></div>
         <div style="color:var(--muted);font-size:13px;line-height:1.7">
-          Switch to <b style="color:var(--accent)">Commodity Deep Dive</b>, pick a commodity, then choose
-          <b>Supply / Demand / Finance</b> side. Use <b>Crop Calendar &amp; Sourcing</b> to see harvest/planting windows per origin,
-          and <b>Market News &amp; Impact</b> for this month's import-relevant events. Click <b>↻ Refresh</b> any time to pull the latest register snapshot.</div>
+          <b style="color:var(--accent)">Insights</b> is the auto-analysis of the register. <b>Deep Dive</b> opens each report's live source sheet.
+          <b>Crop Calendar</b> shows harvest/planting windows per origin. <b>News &amp; Impact</b> lists this month's import-relevant events.
+          Click <b>↻ Refresh</b> to pull the latest register snapshot.</div>
       </div>
     </div>`;
 }
@@ -337,17 +456,14 @@ function renderDive(){
   const sel=$('commodity');
   if(!state.commodity) state.commodity = coms[0];
   sel.innerHTML = coms.map(c=>`<option ${c===state.commodity?'selected':''}>${c}</option>`).join('');
-
   const d = window.CTR_DATA[state.commodity] || {supply:[],demand:[],finance:[]};
   const tabs = Object.keys(SIDE_META).map(s=>{
     const meta=SIDE_META[s]; const n=(d[s]||[]).length;
     return `<button class="${state.side===s?'on':''}" data-side="${s}">${meta.ic} ${meta.label} <span class="cnt">${n}</span></button>`;
   }).join('');
-
   const items = (d[state.side]||[]);
   const groups={};
   items.forEach(i=>{ (groups[i.group]=groups[i.group]||[]).push(i); });
-
   const body = Object.keys(groups).length===0
     ? `<div class="empty">No ${SIDE_META[state.side].label} reports for ${state.commodity}.</div>`
     : Object.entries(groups).map(([g,arr])=>`<div class="grp"><div class="gname">${g}</div><div class="items">
@@ -356,15 +472,12 @@ function renderDive(){
           : `<div class="item nolink"><span class="side-tag ${SIDE_META[state.side].tag}"></span><span class="it">${esc(i.item)}</span><span class="tl">${esc(i.timeline)}</span><span class="ext">no link</span></div>`
         ).join('')}
       </div></div>`).join('');
-
-  $('dive').innerHTML = `
-    <div class="tabs">${tabs}</div>
-    ${body}`;
+  $('dive').innerHTML = `<div class="tabs">${tabs}</div>${body}`;
 }
 
-/* ---------- Purchase Decision Matrix (CEO trading-agent logic) ---------- */
+/* ---------- DECISION MATRIX ---------- */
 const DECISION = {
-  date: "Execution date: 21st Marketing Meeting — September 2026",
+  date: "Execution date: 17th Marketing Meeting",
   macro: {
     tag: "BROAD GRAIN RALLY — SECURE COVERAGE",
     read: "Black Sea war disruption is driving <b>wheat (+40.8% YoY)</b>, <b>corn (+22.8%)</b> and <b>soybeans (+25.5%)</b> to multi-year highs, all with <b>upward-sloping forward curves</b>. Brent <b>$98</b> and firmer bunker add landed-cost pressure at Chittagong. As a net importer the risk is <b>asymmetric to the upside</b>: secure physical coverage and hedge price — do not wait for a pullback that may not come."
@@ -375,43 +488,43 @@ const DECISION = {
       fob:{s:"▲",t:"bull",x:"$7.32/bu ≈ $269/MT · +40.8% YoY · fwd ↑ $7.82"},
       news:{s:"▲",t:"bull",x:"Peace talks faltering; buyers switching to AU/AR"},
       rec:{l:"BUY / SECURE",t:"buy",conv:"HIGH"},
-      c:"Most exposed to the Black Sea shock (+40.8% YoY) with an upward forward curve — waiting is a bet against further escalation. Secure coverage now via Argentina/Australia (already planned Feb–Apr'26), hedge on the forward, avoid unhedged spot." },
+      c:"Most exposed to the Black Sea shock (+40.8% YoY) with an upward forward curve — waiting is a bet against further escalation. Secure coverage now via Argentina/Australia." },
     { cm:"Corn", cal:{s:"▲",t:"bull",x:"US harvest Sep–Oct partial relief; EU ~20-yr low"},
-      wx:{s:"▲",t:"bull",x:"Black Sea corn disruption; EU drought (France 28% G/E)"},
+      wx:{s:"▲",t:"bull",x:"Black Sea corn disruption; EU drought"},
       fob:{s:"▲",t:"bull",x:"$5.16/bu ≈ $203/MT · +22.8% YoY · fwd ↑ $5.49"},
       news:{s:"▲",t:"bull",x:"USDA yield cut; China eyeing US purchases"},
       rec:{l:"BUY / SECURE",t:"buy",conv:"HIGH"},
-      c:"Near a 3-yr high with the Black Sea peak export window (Oct) still ahead — the worst supply risk is not yet behind us. Secure feed-corn requirements now; consider forward, don't chase spot in Oct." },
+      c:"Near a 3-yr high with the Black Sea peak export window (Oct) still ahead. Secure feed-corn requirements now." },
     { cm:"Maize", cal:{s:"▼",t:"bear",x:"Local BD rabi harvest Mar–Apr displaces imports"},
-      wx:{s:"◆",t:"neut",x:"Moderate; Black Sea risk as corn but local supply available"},
+      wx:{s:"◆",t:"neut",x:"Moderate; local supply available"},
       fob:{s:"▲",t:"bull",x:"imports track corn (+22.8% YoY) but local cheaper"},
       news:{s:"◆",t:"neut",x:"Local harvest healthy; feed off-take strong"},
       rec:{l:"HOLD / DEFER IMPORT",t:"hold",conv:"MODERATE"},
-      c:"Unlike corn, Akij has a local rabi maize option — defer discretionary import volume and lean on domestic supply where quality allows." },
+      c:"Akij has a local rabi maize option — defer discretionary import volume and lean on domestic supply." },
     { cm:"Soyabean", cal:{s:"▼",t:"bear",x:"US harvest Sep–Oct imminent (near-term supply)"},
       wx:{s:"◆",t:"neut",x:"US G/E −2pp; moderate; low Black Sea exposure"},
       fob:{s:"▲",t:"bull",x:"$12.94/bu ≈ $476/MT · +25.5% YoY · fwd ↑ $13.68"},
       news:{s:"▲",t:"bull",x:"China buying 530k MT since Sep 1; biofuel support"},
       rec:{l:"PARTIAL COVER",t:"partial",conv:"MOD-HIGH"},
-      c:"Strong Chinese demand and an upward curve, but imminent US harvest may offer a near-term dip. Partial-cover now (~50%), add on harvest pressure." },
+      c:"Strong Chinese demand and an upward curve, but imminent US harvest may offer a near-term dip." },
     { cm:"SBM (Meal)", cal:{s:"◆",t:"neut",x:"Crush-linked; US soy harvest = meal supply pickup"},
       wx:{s:"◆",t:"neut",x:"Moderate"},
       fob:{s:"◆",t:"neut",x:"tracks soybeans — live FOB NEEDS FEED"},
       news:{s:"◆",t:"neut",x:"Neutral-bullish (follows soy complex)"},
       rec:{l:"HOLD / PARTIAL",t:"hold",conv:"MODERATE"},
-      c:"SBM follows the soy complex but with harvest-driven supply ahead. Cover near-term crush needs; extend on harvest pressure." },
+      c:"SBM follows the soy complex but with harvest-driven supply ahead." },
     { cm:"Lentil", cal:{s:"◆",t:"neut",x:"Canada harvest Aug–Sep underway; AU Nov–Dec"},
       wx:{s:"▲",t:"bull",x:"Canada drought (Saskatchewan) — supply risk"},
-      fob:{s:"◆",t:"neut",x:"no live feed — NEEDS FEED (CA red firm per register)"},
+      fob:{s:"◆",t:"neut",x:"no live feed — NEEDS FEED"},
       news:{s:"◆",t:"neut",x:"no web feed — NEEDS FEED"},
       rec:{l:"HOLD / WATCH",t:"hold",conv:"LOW-MOD"},
-      c:"Canada drought supports lentils, but coverage is near-complete per the register. Hold the remaining open position for opportunistic offers." },
+      c:"Canada drought supports lentils, but coverage is near-complete per the register." },
     { cm:"Canola", cal:{s:"◆",t:"neut",x:"AU/CA cycle"},
       wx:{s:"◆",t:"neut",x:"Moderate"},
       fob:{s:"▲",t:"bull",x:"$831.68 CAD/MT · +1.12% d · +34.2% YoY (ICE)"},
       news:{s:"◆",t:"neut",x:"no dedicated feed — NEEDS FEED"},
       rec:{l:"HOLD / WATCH",t:"hold",conv:"LOW"},
-      c:"Canola +34% YoY but quoted in CAD (watch CAD/USD). Limited urgency given the Jul'26 consignment window." }
+      c:"Canola +34% YoY but quoted in CAD. Limited urgency given the Jul'26 consignment window." }
   ]
 };
 
@@ -447,10 +560,9 @@ function renderDecision(){
 /* ---------- CROP CALENDAR & SOURCING ---------- */
 function currentMonthInfo(){
   const d = new Date();
-  const idx = d.getMonth(); // 0=Jan
+  const idx = d.getMonth();
   return { idx, name: MONTHS[idx], full: d.toLocaleString('en',{month:'long', year:'numeric'}) };
 }
-
 function countryAnalytics(phases, curIdx){
   const cur = phases[MONTHS[curIdx]] || 'inactive';
   let rem = 0;
@@ -461,15 +573,18 @@ function countryAnalytics(phases, curIdx){
   for (let i=1;i<=12;i++){ const k=(curIdx+i)%12; if(phases[MONTHS[k]]==='harvesting'){ until=i; break; } }
   const prev = phases[MONTHS[(curIdx+11)%12]] || 'inactive';
   const startedThisMonth = cur==='harvesting' && prev!=='harvesting';
-  let status = cur==='planting' ? 'Planting' : cur==='harvesting' ? 'Harvesting' : 'Inactive';
+  const status = cur==='planting' ? 'Planting' : cur==='harvesting' ? 'Harvesting' : 'Inactive';
   return { status, cur, rem, until, startedThisMonth };
 }
-
-function ccClass(ph){
-  if (ph==='planting') return 'plant';
-  if (ph==='harvesting') return 'harv';
-  if (ph==='inactive' || ph==='') return '';
-  return 'other';
+function ccClass(ph){ return ph==='planting'?'plant':ph==='harvesting'?'harv':(ph==='inactive'||ph==='')?'':'other'; }
+function ccGlyph(ph){
+  if (ph==='planting') return 'P';
+  if (ph==='harvesting') return 'H';
+  if (ph==='storage') return 'S';
+  if (ph==='funding') return 'F';
+  if (ph==='selling') return '$';
+  if (ph==='collection') return 'C';
+  return '';
 }
 
 function renderCrop(){
@@ -482,7 +597,6 @@ function renderCrop(){
   const com = state.cropCommodity;
 
   if (com === 'Corn') {
-    // Corn = procurement strategy table
     const rows = C.cornStrategy.map(r=>{
       const isCur = r.m===cur.name;
       return `<tr><td class="cm" style="${isCur?'color:var(--accent2)':''}">${r.m}${isCur?' ← now':''}</td><td>${r.situation}</td><td class="fobval">${r.strategy}</td><td>${r.origin}</td></tr>`;
@@ -498,17 +612,15 @@ function renderCrop(){
   const cal = C.calendars[com];
   if (!cal || !cal.length) { $('crop').innerHTML = `<div class="empty">No crop calendar data for ${com}.</div>`; return; }
 
-  // Calendar table
-  const head = `<tr><th>${com} origin</th>${MONTHS.map(m=>`<th class="${m===cur.name?'cur':''}">${m}${m===cur.name?' ·':''}</th>`).join('')}</tr>`;
+  const head = `<tr><th>${com} origin</th>${MONTHS.map(m=>`<th class="${m===cur.name?'cur':''}">${m}</th>`).join('')}</tr>`;
   const body = cal.map(c=>{
     const cells = MONTHS.map(m=>{
       const ph = c.m[m] || 'inactive';
-      return `<td class="cc-cell ${ccClass(ph)} ${m===cur.name?'cur':''}" title="${c.country} — ${m}: ${ph}"></td>`;
+      return `<td class="cc-cell glyph ${ccClass(ph)} ${m===cur.name?'cur':''}" title="${esc(c.country)} — ${m}: ${ph}">${ccGlyph(ph)}</td>`;
     }).join('');
     return `<tr><td class="cn">${esc(c.country)}<small>${esc(c.season)}</small></td>${cells}</tr>`;
   }).join('');
 
-  // Sourcing analytics table
   const ana = cal.map(c=>{
     const a = countryAnalytics(c.m, cur.idx);
     let rule = '';
@@ -528,8 +640,8 @@ function renderCrop(){
     <div class="card"><div class="h"><span class="ic">🗓️</span><span class="t">${com} — Crop Calendar</span><span class="sub">current month: ${cur.full}</span></div>
       <div class="cc-wrap"><table class="cc-table"><thead>${head}</thead><tbody>${body}</tbody></table></div>
       <div class="cc-legend">
-        <span><span class="sw plant"></span>Planting (dark green)</span>
-        <span><span class="sw harv"></span>Harvesting (light green)</span>
+        <span><span class="sw plant">P</span>Planting (dark green)</span>
+        <span><span class="sw harv">H</span>Harvesting (light green)</span>
         <span><span class="sw inact"></span>Inactive (blank)</span>
         <span style="color:var(--accent2)">▢ current month</span>
       </div>
@@ -546,12 +658,11 @@ function renderCrop(){
 /* ---------- MARKET NEWS & IMPACT ---------- */
 function renderNews(){
   const C = window.CROP_DATA;
-  const items = (C.news||[]).map(n=>{
-    return `<div class="n">
+  const items = (C.news||[]).map(n=>`
+    <div class="n">
       <div class="top"><span class="t">${esc(n.title)}</span><span class="d">${esc(n.d)}</span><span class="cm-tag">${esc(n.commodity)}</span><span class="risk ${n.risk}">${n.risk.toUpperCase()}</span></div>
       <div class="imp">${esc(n.impact)}</div>
-    </div>`;
-  }).join('');
+    </div>`).join('');
   $('news').innerHTML = `
     <div class="card"><div class="h"><span class="ic">📰</span><span class="t">Market News & Impact Analysis</span><span class="sub">latest import-relevant events</span></div>
       <div class="news">${items}</div>
@@ -572,11 +683,11 @@ function renderMeetings(){
   const ms = C.meetings || [];
   const latest = ms.find(m=>m.status==='latest') || ms[ms.length-1];
   if (state.meeting==null) state.meeting = latest ? latest.label : null;
-  $('meeting').innerHTML = ms.map(m=>`<option value="${m.label}" ${m.label===state.meeting?'selected':''}>${m.label} (${m.month})</option>`).join('');
+  $('meeting').innerHTML = ms.map(m=>`<option value="${m.label}" ${m.label===state.meeting?'selected':''}>${m.label}${m.status==='latest'?' (latest)':''}</option>`).join('');
   if (latest) $('meetingPill').textContent = '#' + latest.n;
 }
 
-/* ---------- refresh (re-pull register data) ---------- */
+/* ---------- refresh ---------- */
 async function loadScript(name){
   const r = await fetch(name + '?cb=' + Date.now(), {cache:'no-store'});
   if (!r.ok) throw new Error(name + ' http ' + r.status);
@@ -584,7 +695,6 @@ async function loadScript(name){
   const fn = new Function(txt + '\n;return ' + (name==='ctr-data.js' ? 'window.CTR_DATA' : 'window.CROP_DATA') + ';');
   return fn();
 }
-
 async function refreshAll(){
   const btn = $('refreshBtn');
   btn.classList.add('spinning');
@@ -602,10 +712,24 @@ async function refreshAll(){
   }
 }
 
+/* ---------- theme toggle ---------- */
+function applyTheme(t){
+  if (t==='light') document.documentElement.setAttribute('data-theme','light');
+  else document.documentElement.removeAttribute('data-theme');
+  $('themeIcon').textContent = t==='light' ? '☀️' : '🌙';
+}
+function toggleTheme(){
+  const cur = document.documentElement.getAttribute('data-theme')==='light' ? 'light' : 'dark';
+  const next = cur==='light' ? 'dark' : 'light';
+  applyTheme(next);
+  try{ localStorage.setItem('theme', next); }catch(e){}
+}
+
 /* ---------- orchestration ---------- */
 function render(){
   const v = state.view;
   $('seg').querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.view===v));
+  $('insights').style.display = v==="insights"?"":"none";
   $('macro').style.display = v==="macro"?"":"none";
   $('dive').style.display = v==="dive"?"":"none";
   $('decision').style.display = v==="decision"?"":"none";
@@ -614,7 +738,8 @@ function render(){
   $('commodityField').style.display = v==="dive"?"":"none";
   $('cropComField').style.display = v==="crop"?"":"none";
   $('nItems').textContent = Object.keys(window.CTR_DATA).length + " commodities";
-  if(v==="macro") renderMacro();
+  if(v==="insights") renderInsights();
+  else if(v==="macro") renderMacro();
   else if(v==="dive") renderDive();
   else if(v==="decision") renderDecision();
   else if(v==="crop") renderCrop();
@@ -627,9 +752,14 @@ $('cropCommodity').addEventListener('change',e=>{ state.cropCommodity=e.target.v
 $('dive').addEventListener('click',e=>{ const b=e.target.closest('button[data-side]'); if(!b)return; state.side=b.dataset.side; renderDive(); });
 $('meeting').addEventListener('change',e=>{ state.meeting=e.target.value; });
 $('refreshBtn').addEventListener('click', refreshAll);
+$('themeBtn').addEventListener('click', toggleTheme);
 
 function tick(){ const d=new Date(); $('clock').textContent = d.toLocaleString('en-GB',{timeZone:'Asia/Dhaka',hour12:false}); }
 setInterval(tick,1000); tick();
+
+let savedTheme='dark';
+try{ savedTheme = localStorage.getItem('theme') || 'dark'; }catch(e){}
+applyTheme(savedTheme);
 renderMeetings();
 render();
 $('lastupd').textContent = 'loaded ' + new Date().toLocaleTimeString('en-GB',{timeZone:'Asia/Dhaka',hour12:false});
