@@ -14,6 +14,7 @@
     --input:#16213a; --input2:#0e1628; --active:#182a4a;
     --plant:#15803d; --harv:#86efac; --harvtx:#0a0f1c;
     --cardbg:#101828; --cell:#0e1628;
+    --gridline:#2c3b5e;
   }
   html[data-theme="light"]{
     --bg:#f3f5fa; --panel:#ffffff; --panel2:#eef1f7; --border:#d9e0ee;
@@ -24,6 +25,7 @@
     --input:#e6ecf7; --input2:#eef1f7; --active:#dbe7f6;
     --plant:#16a34a; --harv:#4ade80; --harvtx:#052e16;
     --cardbg:#ffffff; --cell:#f1f4fa;
+    --gridline:#c9d3e6;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:var(--bg);color:var(--text);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
@@ -157,20 +159,20 @@
 
   /* Crop calendar — clearer visualization */
   .cc-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px;background:var(--panel2)}
-  .cc-table{border-collapse:collapse;width:100%;font-size:12px;min-width:820px}
-  .cc-table th{color:var(--muted);font-weight:700;padding:10px 6px;border-bottom:2px solid var(--border);text-align:center;text-transform:uppercase;font-size:10.5px;letter-spacing:.4px;position:sticky;top:0;background:var(--panel2);z-index:1}
-  .cc-table th:first-child{text-align:left;position:sticky;left:0;z-index:3;min-width:130px}
+  .cc-table{border-collapse:collapse;width:100%;font-size:11px;min-width:760px}
+  .cc-table th{color:var(--muted);font-weight:700;padding:6px 4px;border:1px solid var(--gridline);text-align:center;text-transform:uppercase;font-size:10px;letter-spacing:.4px;position:sticky;top:0;background:var(--panel2);z-index:1}
+  .cc-table th:first-child{text-align:left;position:sticky;left:0;z-index:3;min-width:110px}
   .cc-table th.cur{color:var(--accent2)}
-  .cc-table td{padding:0;border-bottom:1px solid var(--border)}
-  .cc-table td.cn{position:sticky;left:0;background:var(--panel2);padding:9px 12px;font-weight:700;white-space:nowrap;border-right:1px solid var(--border);z-index:2}
-  .cc-table td.cn small{display:block;color:var(--faint);font-weight:400}
-  .cc-cell{height:38px;min-width:46px;text-align:center;border-right:1px solid var(--border);font-weight:800;font-size:13px;transition:transform .1s}
+  .cc-table td{padding:0}
+  .cc-table td.cn{position:sticky;left:0;background:var(--panel2);padding:6px 10px;font-weight:700;white-space:nowrap;border:1px solid var(--gridline);z-index:2;font-size:11.5px}
+  .cc-table td.cn small{display:inline;color:var(--faint);font-weight:400}
+  .cc-cell{height:24px;min-width:34px;text-align:center;border:1px solid var(--gridline);font-weight:800;font-size:11px;transition:transform .1s}
   .cc-cell:hover{transform:scale(1.12);z-index:5;box-shadow:0 0 0 2px var(--accent2)}
   .cc-cell.plant{background:var(--plant);color:#eafff1}
   .cc-cell.harv{background:var(--harv);color:var(--harvtx)}
   .cc-cell.other{background:#3a3120;color:var(--warn)}
   .cc-cell.cur{outline:2px solid var(--accent2);outline-offset:-2px}
-  .cc-cell.glyph{font-size:13px}
+  .cc-cell.glyph{font-size:11px}
   .cc-legend{display:flex;gap:20px;align-items:center;font-size:12px;color:var(--muted);flex-wrap:wrap;margin-top:12px}
   .sw{width:18px;height:18px;border-radius:4px;display:inline-flex;align-items:center;justify-content:center;vertical-align:middle;margin-right:6px;font-weight:800;font-size:11px}
   .sw.plant{background:var(--plant);color:#eafff1}
@@ -214,7 +216,11 @@
   .insight-line .dot{color:var(--accent2);font-weight:800;flex-shrink:0}
   .chip{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:9px;margin:2px 2px 0 0}
   .chip.buy{background:#14351f;color:var(--bull)} .chip.plant{background:#0c2f1d;color:#4ade80} .chip.gap{background:#3a1f27;color:var(--bear)}
+  .chartbox{position:relative;height:300px}
+  .chartbox.tall{height:340px}
+  .chartbox.short{height:220px}
 </style>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
 <div class="app">
@@ -342,10 +348,26 @@ function computeInsights(){
   return {coms, total, withLink, missing:noLink.length, noLink, financeCom, supplyCom, demandCom, noFinance, noSupply, noDemand, per};
 }
 
+let charts = [];
+function destroyCharts(){ charts.forEach(c=>{ try{c.destroy();}catch(e){} }); charts=[]; }
+function themeColors(){
+  const light = document.documentElement.getAttribute('data-theme')==='light';
+  return { tick: light ? '#526082' : '#8ea0bd', grid: light ? '#e4e9f2' : '#1e2a44' };
+}
+function mkChart(canvasId, cfg){
+  const el = document.getElementById(canvasId);
+  if(!el || typeof Chart==='undefined') return null;
+  const c = new Chart(el, cfg);
+  charts.push(c);
+  return c;
+}
+
 function renderInsights(){
+  destroyCharts();
   const I = computeInsights();
   const C = window.CROP_DATA;
   const cur = currentMonthInfo();
+  const tc = themeColors();
 
   // sourcing status this month (from crop calendar)
   let harvesting=[], planting=[];
@@ -366,16 +388,8 @@ function renderInsights(){
     {k:"Harvesting now", v:harvesting.length, d:"origins in buy window"}
   ].map(k=>`<div class="kpi"><div class="k">${k.k}</div><div class="v">${k.v}</div><div class="d">${k.d}</div></div>`).join('');
 
-  // coverage heatmap
-  const heat = Object.keys(window.CTR_DATA).map(c=>{
-    const p=I.per[c];
-    const cell=(n,label)=> `<span class="heat-cell ${n===0?'r':n<3?'a':'g'}" title="${c} · ${label}: ${n}">${n}</span>`;
-    return `<tr><td class="cm">${esc(c)}</td><td>${cell(p.supply,'supply')}</td><td>${cell(p.demand,'demand')}</td><td>${cell(p.finance,'finance')}</td></tr>`;
-  }).join('');
-
-  // auto-generated insight bullets
   const bullets = [];
-  bullets.push(`<b>${I.missing}</b> reports have no source link yet — the dashboard will flag these until a link is added in the register.`);
+  bullets.push(`<b>${I.missing}</b> reports have no source link yet — the dashboard flags these until a link is added in the register.`);
   if (I.noFinance.length) bullets.push(`<b>${I.noFinance.length}</b> commodities lack finance coverage: <b>${I.noFinance.map(esc).join(', ')}</b>.`);
   if (I.noSupply.length) bullets.push(`<b>${I.noSupply.length}</b> commodities have no supply-side reports: <b>${I.noSupply.map(esc).join(', ')}</b>.`);
   if (harvesting.length) bullets.push(`Buy window now — harvesting origins: ${harvesting.map(h=>'<b>'+esc(h)+'</b>').join(', ')}.`);
@@ -386,23 +400,73 @@ function renderInsights(){
   $('insights').innerHTML = `
     <div class="kpis">${kpis}</div>
     <div class="row g2" style="margin-top:16px">
-      <div class="card"><div class="h"><span class="ic">🧭</span><span class="t">Key insights</span><span class="sub">auto-derived from the register</span></div>
-        ${bullets.map(b=>`<div class="insight-line"><span class="dot">›</span><span>${b}</span></div>`).join('')}
+      <div class="card"><div class="h"><span class="ic">📊</span><span class="t">Reports by commodity</span><span class="sub">supply · demand · finance</span></div>
+        <div class="chartbox tall"><canvas id="chCom"></canvas></div>
       </div>
-      <div class="card"><div class="h"><span class="ic">🚦</span><span class="t">Sourcing status — ${cur.full}</span><span class="sub">live crop window</span></div>
-        <div style="margin-bottom:8px"><span class="chip buy">HARVESTING</span> ${harvesting.map(esc).join(', ')||'<span style="color:var(--faint)">none this month</span>'}</div>
-        <div><span class="chip plant">PLANTING</span> ${planting.map(esc).join(', ')||'<span style="color:var(--faint)">none this month</span>'}</div>
+      <div class="card"><div class="h"><span class="ic">🥧</span><span class="t">Coverage split</span><span class="sub">share of all reports</span></div>
+        <div class="chartbox tall"><canvas id="chSide"></canvas></div>
       </div>
     </div>
     <div class="row g2" style="margin-top:16px">
-      <div class="card"><div class="h"><span class="ic">📊</span><span class="t">Coverage matrix</span><span class="sub">reports per commodity · supply / demand / finance</span></div>
-        <div class="dm-wrap"><table class="dm-table" style="min-width:420px"><thead><tr><th>Commodity</th><th>Supply</th><th>Demand</th><th>Finance</th></tr></thead><tbody>${heat}</tbody></table></div>
-        <div class="legend" style="margin-top:10px"><span><span class="heat-cell g" style="padding:1px 8px">3+</span> good</span><span><span class="heat-cell a" style="padding:1px 8px">1–2</span> thin</span><span><span class="heat-cell r" style="padding:1px 8px">0</span> gap</span></div>
+      <div class="card"><div class="h"><span class="ic">🚜</span><span class="t">Origins in current crop window</span><span class="sub">${cur.full}</span></div>
+        <div class="chartbox"><canvas id="chHarvest"></canvas></div>
+      </div>
+      <div class="card"><div class="h"><span class="ic">🧭</span><span class="t">Key insights</span><span class="sub">auto-derived from the register</span></div>
+        ${bullets.map(b=>`<div class="insight-line"><span class="dot">›</span><span>${b}</span></div>`).join('')}
+      </div>
+    </div>
+    <div class="row g2" style="margin-top:16px">
+      <div class="card"><div class="h"><span class="ic">🚦</span><span class="t">Sourcing status — ${cur.full}</span><span class="sub">buy window vs planting</span></div>
+        <div style="margin-bottom:8px"><span class="chip buy">HARVESTING</span> ${harvesting.map(esc).join(', ')||'<span style="color:var(--faint)">none this month</span>'}</div>
+        <div><span class="chip plant">PLANTING</span> ${planting.map(esc).join(', ')||'<span style="color:var(--faint)">none this month</span>'}</div>
       </div>
       <div class="card"><div class="h"><span class="ic">⚠️</span><span class="t">Reports missing a link</span><span class="sub">fill in the register to activate</span></div>
         ${missingList ? `<div style="line-height:2">${missingList}</div>` : `<div class="empty">No gaps — every report has a source link.</div>`}
       </div>
     </div>`;
+
+  // ---- charts ----
+  const coms = Object.keys(window.CTR_DATA);
+  const arr = f => coms.map(c => (window.CTR_DATA[c][f]||[]).length);
+  mkChart('chCom', {
+    type:'bar',
+    data:{ labels:coms, datasets:[
+      {label:'Supply', data:arr('supply'), backgroundColor:'#22c55e'},
+      {label:'Demand', data:arr('demand'), backgroundColor:'#38bdf8'},
+      {label:'Finance', data:arr('finance'), backgroundColor:'#a78bfa'}
+    ]},
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      scales:{ x:{stacked:true, grid:{color:tc.grid}, ticks:{color:tc.tick, precision:0}},
+               y:{stacked:true, grid:{display:false}, ticks:{color:tc.tick, font:{size:10}}} },
+      plugins:{ legend:{labels:{color:tc.tick, font:{size:11}, boxWidth:12}} } }
+  });
+
+  const totS = coms.reduce((a,c)=>a+(window.CTR_DATA[c].supply||[]).length,0);
+  const totD = coms.reduce((a,c)=>a+(window.CTR_DATA[c].demand||[]).length,0);
+  const totF = coms.reduce((a,c)=>a+(window.CTR_DATA[c].finance||[]).length,0);
+  mkChart('chSide', {
+    type:'doughnut',
+    data:{ labels:['Supply','Demand','Finance'], datasets:[{ data:[totS,totD,totF], backgroundColor:['#22c55e','#38bdf8','#a78bfa'], borderColor:'transparent' }]},
+    options:{ responsive:true, maintainAspectRatio:false, cutout:'62%',
+      plugins:{ legend:{position:'bottom', labels:{color:tc.tick, font:{size:11}, boxWidth:12}} } }
+  });
+
+  const harvByCom = Object.entries(C.calendars).map(([com,cal])=>({
+    com,
+    h: (cal||[]).filter(c=>c.m[cur.name]==='harvesting').length,
+    p: (cal||[]).filter(c=>c.m[cur.name]==='planting').length
+  })).sort((a,b)=>b.h-a.h);
+  mkChart('chHarvest', {
+    type:'bar',
+    data:{ labels:harvByCom.map(x=>x.com), datasets:[
+      {label:'Harvesting', data:harvByCom.map(x=>x.h), backgroundColor:'#86efac'},
+      {label:'Planting', data:harvByCom.map(x=>x.p), backgroundColor:'#16a34a'}
+    ]},
+    options:{ indexAxis:'y', responsive:true, maintainAspectRatio:false,
+      scales:{ x:{grid:{color:tc.grid}, ticks:{color:tc.tick, precision:0}},
+               y:{grid:{display:false}, ticks:{color:tc.tick, font:{size:10}}} },
+      plugins:{ legend:{labels:{color:tc.tick, font:{size:11}, boxWidth:12}} } }
+  });
 }
 
 /* ---------- MACRO ---------- */
@@ -618,7 +682,7 @@ function renderCrop(){
       const ph = c.m[m] || 'inactive';
       return `<td class="cc-cell glyph ${ccClass(ph)} ${m===cur.name?'cur':''}" title="${esc(c.country)} — ${m}: ${ph}">${ccGlyph(ph)}</td>`;
     }).join('');
-    return `<tr><td class="cn">${esc(c.country)}<small>${esc(c.season)}</small></td>${cells}</tr>`;
+    return `<tr><td class="cn">${esc(c.country)} <small>${esc(c.season)}</small></td>${cells}</tr>`;
   }).join('');
 
   const ana = cal.map(c=>{
@@ -723,6 +787,7 @@ function toggleTheme(){
   const next = cur==='light' ? 'dark' : 'light';
   applyTheme(next);
   try{ localStorage.setItem('theme', next); }catch(e){}
+  if (state.view==='insights') render(); // re-color charts
 }
 
 /* ---------- orchestration ---------- */
