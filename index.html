@@ -249,8 +249,7 @@
   <div class="main">
     <div class="viewbar">
       <div class="seg" id="seg">
-        <button class="on" data-view="insights">Insights</button>
-        <button data-view="macro">Macro</button>
+        <button class="on" data-view="macro">Macro</button>
         <button data-view="dive">Deep Dive</button>
         <button data-view="decision">Decision Matrix</button>
         <button data-view="crop">Crop Calendar</button>
@@ -274,7 +273,6 @@
       </div>
     </div>
 
-    <div id="insights"></div>
     <div id="macro" style="display:none"></div>
     <div id="dive" style="display:none"></div>
     <div id="decision" style="display:none"></div>
@@ -333,7 +331,7 @@ const SIDE_META = { supply:{label:"Supply Side", tag:"supply", ic:"🌾"}, deman
 const MONTHS = (window.CROP_DATA && window.CROP_DATA.months) || ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 const $=id=>document.getElementById(id);
-const state={view:"insights", commodity:null, side:"supply", cropCommodity:null, meeting:null};
+const state={view:"macro", commodity:null, side:"supply", cropCommodity:null, meeting:null};
 
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");}
 function openLink(u){ if(u) window.open(u,"_blank"); }
@@ -528,6 +526,10 @@ function renderMacro(){
 }
 
 /* ---------- DEEP DIVE ---------- */
+function meetingLink(i){
+  if (state.meeting!=null && i.meetings && i.meetings[state.meeting]) return i.meetings[state.meeting];
+  return i.link;
+}
 function renderDive(){
   const coms = Object.keys(window.CTR_DATA);
   const sel=$('commodity');
@@ -544,8 +546,8 @@ function renderDive(){
   const body = Object.keys(groups).length===0
     ? `<div class="empty">No ${SIDE_META[state.side].label} reports for ${state.commodity}.</div>`
     : Object.entries(groups).map(([g,arr])=>`<div class="grp"><div class="gname">${g}</div><div class="items">
-        ${arr.map(i=> i.link
-          ? `<a class="item" href="${i.link}" target="_blank"><span class="side-tag ${SIDE_META[state.side].tag}"></span><span class="it">${esc(i.item)}</span><span class="tl">${esc(i.timeline)}</span><span class="ext">↗</span></a>`
+        ${arr.map(i=> meetingLink(i)
+          ? `<a class="item" href="${meetingLink(i)}" target="_blank"><span class="side-tag ${SIDE_META[state.side].tag}"></span><span class="it">${esc(i.item)}</span><span class="tl">${esc(i.timeline)}</span><span class="ext">↗</span></a>`
           : `<div class="item nolink"><span class="side-tag ${SIDE_META[state.side].tag}"></span><span class="it">${esc(i.item)}</span><span class="tl">${esc(i.timeline)}</span><span class="ext">no link</span></div>`
         ).join('')}
       </div></div>`).join('');
@@ -894,8 +896,8 @@ function meetingList(){
 function renderMeetings(){
   const ms = meetingList();
   const latest = ms[ms.length-1];
-  if (state.meeting==null) state.meeting = latest ? latest.label : null;
-  $('meeting').innerHTML = ms.map((m,i)=>`<option value="${m.label}" ${m.label===state.meeting?'selected':''}>${m.label}${i===ms.length-1?' (latest)':''}</option>`).join('');
+  if (state.meeting==null) state.meeting = latest ? latest.n : null;
+  $('meeting').innerHTML = ms.map((m,i)=>`<option value="${m.n}" ${m.n===state.meeting?'selected':''}>${m.label}${i===ms.length-1?' (latest)':''}</option>`).join('');
   if (latest) $('meetingPill').textContent = '#' + latest.n;
 }
 
@@ -942,7 +944,6 @@ function toggleTheme(){
 function render(){
   const v = state.view;
   $('seg').querySelectorAll('button').forEach(b=>b.classList.toggle('on', b.dataset.view===v));
-  $('insights').style.display = v==="insights"?"":"none";
   $('macro').style.display = v==="macro"?"":"none";
   $('dive').style.display = v==="dive"?"":"none";
   $('decision').style.display = v==="decision"?"":"none";
@@ -951,8 +952,7 @@ function render(){
   $('commodityField').style.display = v==="dive"?"":"none";
   $('cropComField').style.display = v==="crop"?"":"none";
   $('nItems').textContent = Object.keys(window.CTR_DATA).length + " commodities";
-  if(v==="insights") renderInsights();
-  else if(v==="macro") renderMacro();
+  if(v==="macro") renderMacro();
   else if(v==="dive") renderDive();
   else if(v==="decision") renderDecision();
   else if(v==="crop") renderCrop();
@@ -963,7 +963,7 @@ $('seg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b
 $('commodity').addEventListener('change',e=>{ state.commodity=e.target.value; renderDive(); });
 $('cropCommodity').addEventListener('change',e=>{ state.cropCommodity=e.target.value; renderCrop(); });
 $('dive').addEventListener('click',e=>{ const b=e.target.closest('button[data-side]'); if(!b)return; state.side=b.dataset.side; renderDive(); });
-$('meeting').addEventListener('change',e=>{ state.meeting=e.target.value; });
+$('meeting').addEventListener('change',e=>{ state.meeting=parseInt(e.target.value,10); render(); });
 $('refreshBtn').addEventListener('click', refreshAll);
 $('themeBtn').addEventListener('click', toggleTheme);
 

@@ -72,6 +72,17 @@ def href(cell):
         return None
 
 
+def meeting_columns(ws, hdr):
+    cols = {}
+    for c in range(1, min(ws.max_column, 60) + 1):
+        v = ws.cell(row=hdr, column=c).value
+        if v and isinstance(v, str) and re.search(r"meeting", v, re.I):
+            m = re.search(r"(\d+)", v)
+            if m:
+                cols[int(m.group(1))] = c
+    return cols
+
+
 def extract_sheet(ws, category):
     rows = []
     hdr = None
@@ -83,6 +94,9 @@ def extract_sheet(ws, category):
             break
     if hdr is None:
         return rows
+    mcols = meeting_columns(ws, hdr)
+    sorted_nums = sorted(mcols.keys())
+
     cur_group = None
     for r in range(hdr + 1, ws.max_row + 1):
         g = ws.cell(row=r, column=1).value
@@ -98,12 +112,23 @@ def extract_sheet(ws, category):
             if h:
                 link = h
                 break
+
+        # per-meeting effective links (forward inheritance: "Unchanged" inherits prior)
+        meetings = {}
+        cur = link
+        for n in sorted_nums:
+            h = href(ws.cell(row=r, column=mcols[n]))
+            if h:
+                cur = h
+            meetings[str(n)] = cur
+
         rows.append({
             "category": category,
             "group": cur_group,
             "item": str(item).strip(),
             "timeline": (str(timeline).strip() if timeline else ""),
             "link": link,
+            "meetings": meetings,
         })
     return rows
 
@@ -157,6 +182,7 @@ def main():
             "timeline": row["timeline"],
             "link": row["link"],
             "group": row["group"],
+            "meetings": row["meetings"],
         })
 
     ordered = {}
