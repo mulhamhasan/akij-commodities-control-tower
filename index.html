@@ -11,6 +11,7 @@
     --accent:#38bdf8; --accent2:#22d3ee;
     --bull:#34d399; --bear:#f87171; --neut:#94a3b8; --warn:#f59e0b;
     --sup:#22c55e; --dem:#38bdf8; --fin:#a78bfa;
+    --plant:#166534; --harv:#86efac;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   body{background:var(--bg);color:var(--text);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
@@ -22,6 +23,12 @@
   .live .dot{width:8px;height:8px;border-radius:50%;background:var(--bull);box-shadow:0 0 8px var(--bull);animation:p 1.6s infinite}
   @keyframes p{50%{opacity:.35}}
   .clock{margin-left:auto;color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+  .btn{background:#16213a;border:1px solid var(--border);color:var(--text);border-radius:8px;padding:7px 14px;font-size:12.5px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:border-color .15s}
+  .btn:hover{border-color:var(--accent)}
+  .btn:active{background:#1c2a4a}
+  .btn .sp{display:inline-block;transition:transform .6s}
+  .btn.spinning .sp{transform:rotate(360deg)}
+  .lastupd{font-size:10.5px;color:var(--faint)}
   .main{padding:16px 20px;display:flex;flex-direction:column;gap:16px}
 
   .viewbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -31,9 +38,9 @@
   .seg button.on{background:#182a4a;color:var(--accent)}
   .field{display:flex;flex-direction:column;gap:3px}
   .field label{font-size:10px;text-transform:uppercase;color:var(--faint);letter-spacing:.6px}
-  select{background:#16213a;border:1px solid var(--border);color:var(--text);border-radius:7px;padding:8px 12px;font-size:14px;min-width:220px}
+  select{background:#16213a;border:1px solid var(--border);color:var(--text);border-radius:7px;padding:8px 12px;font-size:14px;min-width:200px}
   select:focus{outline:none;border-color:var(--accent)}
-  .spacer{margin-left:auto;display:flex;gap:8px;align-items:center}
+  .spacer{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
   .pill{background:#16213a;border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--muted)}
   .pill b{color:var(--accent2)}
 
@@ -49,7 +56,6 @@
   .h .sub{color:var(--faint);font-size:11px;margin-left:auto}
   .h .ic{font-size:16px}
 
-  /* index cards */
   .idx{display:flex;flex-direction:column;gap:12px}
   .idx .card{padding:13px 14px;cursor:pointer;transition:border-color .15s,transform .15s}
   .idx .card:hover{border-color:var(--accent);transform:translateY(-1px)}
@@ -60,7 +66,6 @@
   .up{color:var(--bull)} .dn{color:var(--bear)} .fl{color:var(--neut)}
   .src{color:var(--faint);font-size:10px;display:inline-flex;align-items:center;gap:4px;margin-left:auto}
 
-  /* risk matrix */
   .risk{display:flex;flex-direction:column;gap:9px}
   .risk .r{display:grid;grid-template-columns:1fr 90px 60px;gap:10px;align-items:center;font-size:12.5px}
   .risk .r .nm{color:var(--text)}
@@ -69,7 +74,6 @@
   .risk .bar{height:7px;background:#16213a;border-radius:4px;overflow:hidden}
   .risk .bar i{display:block;height:100%;border-radius:4px}
 
-  /* flows */
   .flow{display:flex;flex-direction:column;gap:10px}
   .flow .f{border:1px solid var(--border);border-radius:9px;padding:10px 12px;background:var(--panel2)}
   .flow .f .top{display:flex;align-items:center;gap:8px}
@@ -78,7 +82,6 @@
   .dir.in{background:#14351f;color:var(--bull)} .dir.out{background:#3a3120;color:var(--warn)}
   .flow .f .cnt{margin-top:6px;font-size:12px;color:var(--muted)}
 
-  /* ports */
   .port{display:flex;flex-direction:column;gap:10px}
   .port .p{display:flex;align-items:center;gap:10px;border:1px solid var(--border);border-radius:9px;padding:10px 12px;background:var(--panel2)}
   .port .p .nm{font-weight:700;flex:1}
@@ -86,7 +89,6 @@
   .port .p .st{font-size:10px;font-weight:700;padding:2px 8px;border-radius:10px}
   .st.ok{background:#14351f;color:var(--bull)} .st.warn{background:#3a3120;color:var(--warn)} .st.crit{background:#3a1f27;color:var(--bear)}
 
-  /* deep dive */
   .tabs{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap}
   .tabs button{border:1px solid var(--border);background:#0e1628;color:var(--muted);padding:9px 16px;border-radius:8px;font-size:13px;cursor:pointer;display:flex;gap:8px;align-items:center}
   .tabs button.on{border-color:var(--accent);color:var(--accent);background:#12233d}
@@ -108,7 +110,6 @@
   .empty{color:var(--faint);padding:30px;text-align:center}
   a.item{display:flex}
 
-  /* decision matrix */
   .dm-banner{border:1px solid #3a3120;background:linear-gradient(135deg,#1a1408,#241a08);border-radius:12px;padding:14px 16px;margin-bottom:16px}
   .dm-banner .tag{display:inline-block;background:#3a3120;color:var(--warn);font-weight:800;font-size:11px;letter-spacing:1px;padding:2px 10px;border-radius:10px;margin-bottom:6px}
   .dm-banner .read{font-size:14px;line-height:1.6;color:#f3e6c8}
@@ -138,17 +139,44 @@
   .dm-comment .cm-txt b{color:var(--text)}
   .legend{display:flex;gap:16px;margin-top:10px;font-size:11px;color:var(--muted);flex-wrap:wrap}
 
-  /* live price ticker */
-  .ticker{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:8px 10px}
-  .pt{display:flex;flex-direction:column;gap:1px;border:1px solid var(--border);border-radius:8px;padding:6px 11px;background:#0e1628;min-width:118px}
-  .pt b{font-size:11px;color:var(--muted);font-weight:600;letter-spacing:.3px}
-  .pt .px{font-size:17px;font-weight:800;font-variant-numeric:tabular-nums}
-  .pt .ch{font-size:11px;font-weight:700}
-  .up{color:var(--bull)} .dn{color:var(--bear)}
-  .livebar{display:flex;gap:12px;align-items:center;font-size:11px;color:var(--faint);padding:1px 2px 0}
-  .livebar .live{display:inline-flex;align-items:center;gap:5px;color:var(--bull)}
-  .livebar .live .dot{width:7px;height:7px;border-radius:50%;background:var(--bull);box-shadow:0 0 7px var(--bull);animation:p 1.4s infinite}
-  .livebar .stale{color:var(--warn)}
+  /* Crop calendar */
+  .cc-wrap{overflow-x:auto;border:1px solid var(--border);border-radius:10px}
+  .cc-table{border-collapse:collapse;width:100%;font-size:11.5px;min-width:760px}
+  .cc-table th{color:var(--faint);font-weight:600;padding:7px 6px;border-bottom:1px solid var(--border);text-align:center;text-transform:uppercase;font-size:10px;letter-spacing:.4px;position:sticky;top:0;background:var(--panel2)}
+  .cc-table th:first-child{text-align:left;position:sticky;left:0;z-index:2;min-width:120px}
+  .cc-table th.cur{color:var(--accent2)}
+  .cc-table td{padding:0;border-bottom:1px solid #18223a}
+  .cc-table td.cn{position:sticky;left:0;background:var(--panel2);padding:7px 10px;font-weight:600;white-space:nowrap;border-right:1px solid var(--border)}
+  .cc-table td.cn small{display:block;color:var(--faint);font-weight:400}
+  .cc-cell{height:30px;min-width:34px;text-align:center;border-right:1px solid #141f36}
+  .cc-cell.plant{background:var(--plant)}
+  .cc-cell.harv{background:var(--harv);color:#0a0f1c}
+  .cc-cell.other{background:#3a3120;color:var(--warn)}
+  .cc-cell.cur{border:1px solid var(--accent2)}
+  .cc-legend{display:flex;gap:18px;align-items:center;font-size:11px;color:var(--muted);flex-wrap:wrap;margin-top:10px}
+  .sw{width:14px;height:14px;border-radius:3px;display:inline-block;vertical-align:middle;margin-right:5px}
+  .sw.plant{background:var(--plant)} .sw.harv{background:var(--harv)} .sw.inact{background:#16213a;border:1px solid var(--border)}
+
+  /* sourcing analytics */
+  .ana-table{width:100%;border-collapse:collapse;font-size:12px}
+  .ana-table th{color:var(--faint);text-align:left;font-weight:600;padding:8px 8px;border-bottom:1px solid var(--border);text-transform:uppercase;font-size:10px;letter-spacing:.4px}
+  .ana-table td{padding:8px;border-bottom:1px solid #18223a}
+  .stat{display:inline-block;font-weight:700;font-size:11px;padding:2px 9px;border-radius:9px}
+  .stat.harvesting{background:#14351f;color:var(--harv)}
+  .stat.planting{background:#0c2f1d;color:#4ade80}
+  .stat.inactive{background:#1c2436;color:var(--faint)}
+  .rule-tag{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:8px;background:#3a3120;color:var(--warn)}
+
+  /* news */
+  .news{display:flex;flex-direction:column;gap:10px}
+  .news .n{border:1px solid var(--border);border-radius:10px;padding:12px 14px;background:var(--panel2)}
+  .news .n .top{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .news .n .t{font-weight:700;font-size:13.5px}
+  .news .n .d{color:var(--faint);font-size:11px}
+  .news .n .cm-tag{font-size:10px;font-weight:700;padding:1px 8px;border-radius:10px;background:#12233d;color:var(--accent)}
+  .news .n .risk{font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px}
+  .risk.high{background:#3a1f27;color:var(--bear)} .risk.moderate{background:#3a3120;color:var(--warn)} .risk.low{background:#14351f;color:var(--bull)}
+  .news .n .imp{margin-top:7px;font-size:12.5px;color:var(--muted);line-height:1.6}
 </style>
 </head>
 <body>
@@ -157,6 +185,8 @@
     <div class="logo">AKIJ COMMODITIES <b>LIVE CONTROL TOWER</b></div>
     <div class="live"><span class="dot"></span> monitoring Chittagong · Kutubdia · Mongla</div>
     <span class="clock" id="clock">—</span>
+    <button class="btn" id="refreshBtn" title="Re-pull latest register data"><span class="sp">↻</span> Refresh</button>
+    <span class="lastupd" id="lastupd">—</span>
   </div>
 
   <div class="main">
@@ -165,31 +195,40 @@
         <button class="on" data-view="macro">Macro Control Tower</button>
         <button data-view="dive">Commodity Deep Dive</button>
         <button data-view="decision">Purchase Decision Matrix</button>
+        <button data-view="crop">Crop Calendar &amp; Sourcing</button>
+        <button data-view="news">Market News &amp; Impact</button>
       </div>
       <div class="field" id="commodityField" style="display:none">
         <label>Commodity</label>
         <select id="commodity"></select>
       </div>
+      <div class="field" id="cropComField" style="display:none">
+        <label>Crop</label>
+        <select id="cropCommodity"></select>
+      </div>
+      <div class="field" id="meetingField">
+        <label>Meeting</label>
+        <select id="meeting"></select>
+      </div>
       <div class="spacer">
         <span class="pill">Source register <b id="nItems">—</b></span>
-        <span class="pill">Meeting <b>#16</b></span>
-        <span class="pill" id="livePill">↻ live feed</span>
+        <span class="pill">Latest meeting <b id="meetingPill">—</b></span>
       </div>
     </div>
-
-    <div class="ticker" id="priceticker"></div>
-    <div class="livebar"><span class="live"><span class="dot"></span> LIVE</span><span>updated <span id="pxTime">—</span> BDT</span><span>source: CBOT/ICE front-month futures · auto-refresh 30s</span></div>
 
     <div id="macro"></div>
     <div id="dive" style="display:none"></div>
     <div id="decision" style="display:none"></div>
+    <div id="crop" style="display:none"></div>
+    <div id="news" style="display:none"></div>
 
     <div class="note">Every metric below links to the live analysis document in the ARL/ACL "Source File" register (Supply / Demand / Finance chapters). Index values marked "est." are interface placeholders — open the source doc for the authoritative figure.</div>
-    <div class="note" style="color:var(--warn)">🔒 View-only. This dashboard is regenerated only when the source register changes. Current data snapshot: Source File modified 08 Sep 2026 15:55 BDT (last edit: Ellin Ahmed).</div>
+    <div class="note" style="color:var(--warn)">🔒 View-only. This dashboard is regenerated when the source register changes. Click <b>↻ Refresh</b> to pull the latest snapshot.</div>
   </div>
 </div>
 
 <script src="ctr-data.js"></script>
+<script src="ctr-crop.js"></script>
 <script>
 /* ---------- Macro view static configuration (links = real register sources) ---------- */
 const MACRO = {
@@ -234,9 +273,10 @@ const MACRO = {
 };
 
 const SIDE_META = { supply:{label:"Supply Side", tag:"supply", ic:"🌾"}, demand:{label:"Demand Side", tag:"demand", ic:"🛒"}, finance:{label:"Finance Side", tag:"finance", ic:"💰"} };
+const MONTHS = (window.CROP_DATA && window.CROP_DATA.months) || ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 const $=id=>document.getElementById(id);
-const state={view:"macro", commodity:null, side:"supply"};
+const state={view:"macro", commodity:null, side:"supply", cropCommodity:null, meeting:null};
 
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");}
 function openLink(u){ if(u) window.open(u,"_blank"); }
@@ -266,9 +306,9 @@ function renderMacro(){
   $('macro').innerHTML = `
     <div class="row g4">
       <div class="card"><div class="h"><span class="ic">⛽</span><span class="t">Global Freight & Energy Index</span><span class="sub">bunker · coal · fuel</span></div>
-        <div class="idx" style="grid-template-columns:1fr;display:grid;gap:10px">${MACRO.energy.map(e=>`<div class="card" onclick="openLink('${e.link}')" style="cursor:pointer"><div class="nm">${e.nm}</div><div class="val">${e.val} <small>${e.unit}</small></div><div class="foot"><span class="${e.c}">${e.d}</span><span class="src">↗ source</span></div></div>`).join('')}</div>
+        <div class="idx" style="grid-template-columns:1fr;display:grid;gap:10px">${energy}</div>
       </div>
-      <div class="card"><div class="h"><span class="ic">⚓</span><span class="t">Port & Logistics — Real-Time</span><span class="sub">entry points</span></div>
+      <div class="card"><div class="h"><span class="ic">⚓</span><span class="t">Port & Logistics</span><span class="sub">entry points</span></div>
         <div class="port">${ports}</div>
       </div>
       <div class="card"><div class="h"><span class="ic">🛡️</span><span class="t">High-Priority Risk Matrix</span><span class="sub">choke · weather · FX · G2G</span></div>
@@ -284,10 +324,9 @@ function renderMacro(){
       </div>
       <div class="card"><div class="h"><span class="ic">📘</span><span class="t">How to use</span><span class="sub">dropdown → items → analysis</span></div>
         <div style="color:var(--muted);font-size:13px;line-height:1.7">
-          Switch to <b style="color:var(--accent)">Commodity Deep Dive</b>, pick a commodity from the dropdown, then choose
-          <b>Supply / Demand / Finance</b> side. Each item opens its live analysis sheet. Supply side covers crop calendar,
-          procurement strategy, weather & shipping risk, consignment, vessel and market price. Demand side covers monthly
-          demand, import data, selling / purchase / competitor price. Finance side covers costing, actual & forecast P&amp;L.</div>
+          Switch to <b style="color:var(--accent)">Commodity Deep Dive</b>, pick a commodity, then choose
+          <b>Supply / Demand / Finance</b> side. Use <b>Crop Calendar &amp; Sourcing</b> to see harvest/planting windows per origin,
+          and <b>Market News &amp; Impact</b> for this month's import-relevant events. Click <b>↻ Refresh</b> any time to pull the latest register snapshot.</div>
       </div>
     </div>`;
 }
@@ -306,7 +345,6 @@ function renderDive(){
   }).join('');
 
   const items = (d[state.side]||[]);
-  // group by report type
   const groups={};
   items.forEach(i=>{ (groups[i.group]=groups[i.group]||[]).push(i); });
 
@@ -325,8 +363,8 @@ function renderDive(){
 }
 
 /* ---------- Purchase Decision Matrix (CEO trading-agent logic) ---------- */
-/* Signals: ▲ bullish/act-now · ▼ bearish/wait · ◆ neutral · provenance LIVE (fetched 2026-09-08) / EST / NEEDS FEED */
 const DECISION = {
+  date: "Execution date: 21st Marketing Meeting — September 2026",
   macro: {
     tag: "BROAD GRAIN RALLY — SECURE COVERAGE",
     read: "Black Sea war disruption is driving <b>wheat (+40.8% YoY)</b>, <b>corn (+22.8%)</b> and <b>soybeans (+25.5%)</b> to multi-year highs, all with <b>upward-sloping forward curves</b>. Brent <b>$98</b> and firmer bunker add landed-cost pressure at Chittagong. As a net importer the risk is <b>asymmetric to the upside</b>: secure physical coverage and hedge price — do not wait for a pullback that may not come."
@@ -334,60 +372,58 @@ const DECISION = {
   rows: [
     { cm:"Wheat", cal:{s:"▲",t:"bull",x:"NH harvest done; Argentina Dec–Jan far — supply tight now"},
       wx:{s:"▲",t:"bull",x:"Black Sea war; Russia exports −50%; terminal attacks"},
-      fob:{s:"▲",t:"bull",x:"$7.32/bu ≈ $269/MT · +40.8% YoY · fwd ↑ $7.82",live:true},
+      fob:{s:"▲",t:"bull",x:"$7.32/bu ≈ $269/MT · +40.8% YoY · fwd ↑ $7.82"},
       news:{s:"▲",t:"bull",x:"Peace talks faltering; buyers switching to AU/AR"},
       rec:{l:"BUY / SECURE",t:"buy",conv:"HIGH"},
-      c:"Most exposed to the Black Sea shock (+40.8% YoY) with an upward forward curve — waiting is a bet against further escalation. Secure coverage now via Argentina/Australia (already planned Feb–Apr'26), hedge on the forward, avoid unhedged spot. Chittagong landed cost will keep rising." },
+      c:"Most exposed to the Black Sea shock (+40.8% YoY) with an upward forward curve — waiting is a bet against further escalation. Secure coverage now via Argentina/Australia (already planned Feb–Apr'26), hedge on the forward, avoid unhedged spot." },
     { cm:"Corn", cal:{s:"▲",t:"bull",x:"US harvest Sep–Oct partial relief; EU ~20-yr low"},
       wx:{s:"▲",t:"bull",x:"Black Sea corn disruption; EU drought (France 28% G/E)"},
-      fob:{s:"▲",t:"bull",x:"$5.16/bu ≈ $203/MT · +22.8% YoY · fwd ↑ $5.49",live:true},
+      fob:{s:"▲",t:"bull",x:"$5.16/bu ≈ $203/MT · +22.8% YoY · fwd ↑ $5.49"},
       news:{s:"▲",t:"bull",x:"USDA yield cut; China eyeing US purchases"},
       rec:{l:"BUY / SECURE",t:"buy",conv:"HIGH"},
       c:"Near a 3-yr high with the Black Sea peak export window (Oct) still ahead — the worst supply risk is not yet behind us. Secure feed-corn requirements now; consider forward, don't chase spot in Oct." },
     { cm:"Maize", cal:{s:"▼",t:"bear",x:"Local BD rabi harvest Mar–Apr displaces imports"},
       wx:{s:"◆",t:"neut",x:"Moderate; Black Sea risk as corn but local supply available"},
-      fob:{s:"▲",t:"bull",x:"imports track corn (+22.8% YoY) but local cheaper",live:false},
+      fob:{s:"▲",t:"bull",x:"imports track corn (+22.8% YoY) but local cheaper"},
       news:{s:"◆",t:"neut",x:"Local harvest healthy; feed off-take strong"},
       rec:{l:"HOLD / DEFER IMPORT",t:"hold",conv:"MODERATE"},
-      c:"Unlike corn, Akij has a local rabi maize option — defer discretionary import volume and lean on domestic supply where quality allows. Re-assess after the Apr local harvest peak." },
+      c:"Unlike corn, Akij has a local rabi maize option — defer discretionary import volume and lean on domestic supply where quality allows." },
     { cm:"Soyabean", cal:{s:"▼",t:"bear",x:"US harvest Sep–Oct imminent (near-term supply)"},
       wx:{s:"◆",t:"neut",x:"US G/E −2pp; moderate; low Black Sea exposure"},
-      fob:{s:"▲",t:"bull",x:"$12.94/bu ≈ $476/MT · +25.5% YoY · fwd ↑ $13.68",live:true},
+      fob:{s:"▲",t:"bull",x:"$12.94/bu ≈ $476/MT · +25.5% YoY · fwd ↑ $13.68"},
       news:{s:"▲",t:"bull",x:"China buying 530k MT since Sep 1; biofuel support"},
       rec:{l:"PARTIAL COVER",t:"partial",conv:"MOD-HIGH"},
-      c:"Strong Chinese demand and an upward curve, but imminent US harvest may offer a near-term dip. Partial-cover now (~50%), add on harvest pressure. Do not go fully unhedged given the +25.5% YoY run." },
+      c:"Strong Chinese demand and an upward curve, but imminent US harvest may offer a near-term dip. Partial-cover now (~50%), add on harvest pressure." },
     { cm:"SBM (Meal)", cal:{s:"◆",t:"neut",x:"Crush-linked; US soy harvest = meal supply pickup"},
       wx:{s:"◆",t:"neut",x:"Moderate"},
-      fob:{s:"◆",t:"neut",x:"tracks soybeans — live FOB NEEDS FEED",live:false},
+      fob:{s:"◆",t:"neut",x:"tracks soybeans — live FOB NEEDS FEED"},
       news:{s:"◆",t:"neut",x:"Neutral-bullish (follows soy complex)"},
       rec:{l:"HOLD / PARTIAL",t:"hold",conv:"MODERATE"},
-      c:"SBM follows the soy complex but with harvest-driven supply ahead. Cover near-term crush needs; extend on harvest pressure. Confirm FOB via Fastmarkets/Platts before large lots." },
+      c:"SBM follows the soy complex but with harvest-driven supply ahead. Cover near-term crush needs; extend on harvest pressure." },
     { cm:"Lentil", cal:{s:"◆",t:"neut",x:"Canada harvest Aug–Sep underway; AU Nov–Dec"},
       wx:{s:"▲",t:"bull",x:"Canada drought (Saskatchewan) — supply risk"},
-      fob:{s:"◆",t:"neut",x:"no live feed — NEEDS FEED (CA red firm per register)",live:false},
+      fob:{s:"◆",t:"neut",x:"no live feed — NEEDS FEED (CA red firm per register)"},
       news:{s:"◆",t:"neut",x:"no web feed — NEEDS FEED"},
       rec:{l:"HOLD / WATCH",t:"hold",conv:"LOW-MOD"},
-      c:"Canada drought supports lentils, but coverage is near-complete per the register and FOB/news feeds are pending. Hold the remaining open position for opportunistic offers; don't chase without fresh price data." },
+      c:"Canada drought supports lentils, but coverage is near-complete per the register. Hold the remaining open position for opportunistic offers." },
     { cm:"Canola", cal:{s:"◆",t:"neut",x:"AU/CA cycle"},
       wx:{s:"◆",t:"neut",x:"Moderate"},
-      fob:{s:"▲",t:"bull",x:"$831.68 CAD/MT · +1.12% d · +34.2% YoY (ICE)",live:true},
+      fob:{s:"▲",t:"bull",x:"$831.68 CAD/MT · +1.12% d · +34.2% YoY (ICE)"},
       news:{s:"◆",t:"neut",x:"no dedicated feed — NEEDS FEED"},
       rec:{l:"HOLD / WATCH",t:"hold",conv:"LOW"},
-      c:"Canola +34% YoY but quoted in CAD (watch CAD/USD). Limited urgency given the Jul'26 consignment window; act only on confirmed FOB offers." }
+      c:"Canola +34% YoY but quoted in CAD (watch CAD/USD). Limited urgency given the Jul'26 consignment window." }
   ]
 };
 
 function renderDecision(){
-  const th = `<tr><th>Commodity</th><th>Crop Calendar</th><th>Weather & Shipping</th><th>FOB Price</th><th>Latest News (web)</th><th style="text-align:center">Recommendation</th></tr>`;
+  const th = `<tr><th>Commodity</th><th>Crop Calendar</th><th>Weather & Shipping</th><th>FOB Price</th><th>Latest News</th><th style="text-align:center">Recommendation</th></tr>`;
   const rows = DECISION.rows.map(r=>{
     const sig=(f)=>`<span class="sig ${f.t}">${f.s}</span>`;
-    const sym = PRICE_SYMS[r.cm];
-    const fob = sym ? `<span class="fobval" data-fob-sym="${sym}">${r.fob.x}</span> <span class="live">LIVE</span>` : `<span class="factor-txt">${r.fob.x}</span>`;
     return `<tr>
       <td class="cm">${r.cm}</td>
       <td>${sig(r.cal)}<span class="factor-txt">${r.cal.x}</span></td>
       <td>${sig(r.wx)}<span class="factor-txt">${r.wx.x}</span></td>
-      <td>${sig(r.fob)}${fob}</td>
+      <td>${sig(r.fob)}<span class="fobval">${r.fob.x}</span></td>
       <td>${sig(r.news)}<span class="factor-txt">${r.news.x}</span></td>
       <td style="text-align:center"><span class="rec ${r.rec.t}">${r.rec.l}</span><div class="conv">conviction ${'<i style="background:#34d399"></i>'.repeat(r.rec.conv==='HIGH'?3:r.rec.conv==='MOD-HIGH'?2.5:r.rec.conv==='MODERATE'?2:r.rec.conv==='LOW-MOD'?1.5:1)}</div></td>
     </tr>`;
@@ -397,50 +433,173 @@ function renderDecision(){
       <div class="cm-txt">${r.c}</div></div>`).join('');
   $('decision').innerHTML = `
     <div class="dm-banner"><div class="tag">${DECISION.macro.tag}</div><div class="read">${DECISION.macro.read}</div></div>
+    <div class="note" style="margin-bottom:8px;color:var(--accent2)">${DECISION.date}</div>
     <div class="dm-wrap"><table class="dm-table">${th}${rows}</table></div>
     <div class="legend">
       <span><span class="sig bull">▲</span> supports acting now</span>
       <span><span class="sig bear">▼</span> supports waiting</span>
       <span><span class="sig neut">◆</span> neutral / data gap</span>
-      <span>LIVE = fetched 2026-09-08 (Trading Economics)</span>
       <span>Advisory only — execution rests with the business/Board</span>
     </div>
     <div class="dm-comment"><div class="h"><span class="ic">🧭</span><span class="t">CEO Comment — per commodity</span><span class="sub">commercial impact for Akij Commodities</span></div>${comments}</div>`;
-  if(lastPrices) renderDecisionFob(lastPrices);
 }
 
-/* ---------- Live price feed (auto-refresh 30s) ---------- */
-const PRICE_SYMS = { "Wheat":"ZW=F", "Corn":"ZC=F", "Soyabean":"ZS=F", "SBM (Meal)":"ZM=F", "Canola":"RS=F" };
-let lastPrices = null;
-function fmtPrice(v){ if(v==null) return '—'; return v>=1000 ? v.toLocaleString('en-US',{maximumFractionDigits:0}) : v.toFixed(v>=100?1:2); }
-async function refreshPrices(){
-  try{
-    const r = await fetch('/prices',{cache:'no-store'});
-    if(!r.ok) throw new Error('http '+r.status);
-    const j = await r.json();
-    if(j && j.items && j.items.length){
-      lastPrices = j;
-      renderTicker(j); renderDecisionFob(j);
-      const t=document.getElementById('pxTime'); if(t) t.textContent = new Date(j.updated).toLocaleTimeString('en-GB',{timeZone:'Asia/Dhaka'});
-    }
-  }catch(e){
-    const el=document.getElementById('priceticker');
-    if(el && !el.dataset.filled) el.innerHTML = `<span class="note" style="color:var(--warn)">Live feed unavailable — open via the hosted link, not a local file.</span>`;
+/* ---------- CROP CALENDAR & SOURCING ---------- */
+function currentMonthInfo(){
+  const d = new Date();
+  const idx = d.getMonth(); // 0=Jan
+  return { idx, name: MONTHS[idx], full: d.toLocaleString('en',{month:'long', year:'numeric'}) };
+}
+
+function countryAnalytics(phases, curIdx){
+  const cur = phases[MONTHS[curIdx]] || 'inactive';
+  let rem = 0;
+  if (cur === 'harvesting') {
+    for (let i=0;i<12;i++){ const k=(curIdx+i)%12; if(phases[MONTHS[k]]==='harvesting') rem++; else break; }
   }
+  let until = null;
+  for (let i=1;i<=12;i++){ const k=(curIdx+i)%12; if(phases[MONTHS[k]]==='harvesting'){ until=i; break; } }
+  const prev = phases[MONTHS[(curIdx+11)%12]] || 'inactive';
+  const startedThisMonth = cur==='harvesting' && prev!=='harvesting';
+  let status = cur==='planting' ? 'Planting' : cur==='harvesting' ? 'Harvesting' : 'Inactive';
+  return { status, cur, rem, until, startedThisMonth };
 }
-function renderTicker(j){
-  const el=document.getElementById('priceticker'); if(!el) return; el.dataset.filled='1';
-  el.innerHTML = j.items.map(i=>{
-    const up=i.chgPct>=0;
-    return `<div class="pt"><b>${i.name}</b><span class="px">${fmtPrice(i.price)}<span style="font-size:10px;color:var(--faint)"> ${i.unit}</span></span><span class="ch ${up?'up':'dn'}">${up?'▲':'▼'} ${Math.abs(i.chgPct).toFixed(2)}%</span></div>`;
+
+function ccClass(ph){
+  if (ph==='planting') return 'plant';
+  if (ph==='harvesting') return 'harv';
+  if (ph==='inactive' || ph==='') return '';
+  return 'other';
+}
+
+function renderCrop(){
+  const C = window.CROP_DATA;
+  const cur = currentMonthInfo();
+  const coms = ['Wheat','Maize','Soyabean','Lentil','Mustard','Corn'];
+  const sel=$('cropCommodity');
+  if(!state.cropCommodity || !coms.includes(state.cropCommodity)) state.cropCommodity = 'Wheat';
+  sel.innerHTML = coms.map(c=>`<option ${c===state.cropCommodity?'selected':''}>${c}</option>`).join('');
+  const com = state.cropCommodity;
+
+  if (com === 'Corn') {
+    // Corn = procurement strategy table
+    const rows = C.cornStrategy.map(r=>{
+      const isCur = r.m===cur.name;
+      return `<tr><td class="cm" style="${isCur?'color:var(--accent2)':''}">${r.m}${isCur?' ← now':''}</td><td>${r.situation}</td><td class="fobval">${r.strategy}</td><td>${r.origin}</td></tr>`;
+    }).join('');
+    $('crop').innerHTML = `
+      <div class="card"><div class="h"><span class="ic">🌽</span><span class="t">Corn — Crop Year & Procurement Strategy</span><span class="sub">current month: ${cur.full}</span></div>
+      <div class="dm-wrap"><table class="dm-table" style="min-width:520px"><thead><tr><th>Month</th><th>Market Situation</th><th>Procurement Strategy</th><th>Best Origin</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <div class="note">Sourcing rule: cover the current month's "Best Origin" window; pivot to the next origin as harvests rotate (Brazil → Argentina → USA).</div>
+      </div>`;
+    return;
+  }
+
+  const cal = C.calendars[com];
+  if (!cal || !cal.length) { $('crop').innerHTML = `<div class="empty">No crop calendar data for ${com}.</div>`; return; }
+
+  // Calendar table
+  const head = `<tr><th>${com} origin</th>${MONTHS.map(m=>`<th class="${m===cur.name?'cur':''}">${m}${m===cur.name?' ·':''}</th>`).join('')}</tr>`;
+  const body = cal.map(c=>{
+    const cells = MONTHS.map(m=>{
+      const ph = c.m[m] || 'inactive';
+      return `<td class="cc-cell ${ccClass(ph)} ${m===cur.name?'cur':''}" title="${c.country} — ${m}: ${ph}"></td>`;
+    }).join('');
+    return `<tr><td class="cn">${esc(c.country)}<small>${esc(c.season)}</small></td>${cells}</tr>`;
   }).join('');
+
+  // Sourcing analytics table
+  const ana = cal.map(c=>{
+    const a = countryAnalytics(c.m, cur.idx);
+    let rule = '';
+    if (a.startedThisMonth) rule = `<span class="rule-tag">Harvest starts now → exclude collection this month · allow from next month</span>`;
+    else if (a.cur==='harvesting') rule = `<span style="color:var(--muted);font-size:11px">Harvest ongoing — ${a.rem} month(s) to end</span>`;
+    else rule = `<span style="color:var(--muted);font-size:11px">No active harvest — next in ${a.until==null?'—':a.until+' month(s)'}</span>`;
+    return `<tr>
+      <td>${esc(c.country)}${c.season?' <span style="color:var(--faint)">· '+esc(c.season)+'</span>':''}</td>
+      <td><span class="stat ${a.cur}">${a.status}</span></td>
+      <td>${a.cur==='harvesting'?a.rem:'—'}</td>
+      <td>${a.cur==='harvesting'?'—':(a.until==null?'—':a.until)}</td>
+      <td>${rule}</td>
+    </tr>`;
+  }).join('');
+
+  $('crop').innerHTML = `
+    <div class="card"><div class="h"><span class="ic">🗓️</span><span class="t">${com} — Crop Calendar</span><span class="sub">current month: ${cur.full}</span></div>
+      <div class="cc-wrap"><table class="cc-table"><thead>${head}</thead><tbody>${body}</tbody></table></div>
+      <div class="cc-legend">
+        <span><span class="sw plant"></span>Planting (dark green)</span>
+        <span><span class="sw harv"></span>Harvesting (light green)</span>
+        <span><span class="sw inact"></span>Inactive (blank)</span>
+        <span style="color:var(--accent2)">▢ current month</span>
+      </div>
+    </div>
+    <div class="card"><div class="h"><span class="ic">📊</span><span class="t">${com} — Sourcing Analytics (${cur.full})</span><span class="sub">phase · months to harvest end · months to next harvest</span></div>
+      <div class="dm-wrap"><table class="ana-table">
+        <thead><tr><th>Origin</th><th>Status now</th><th>Months to harvest end</th><th>Months to next harvest</th><th>Procurement rule</th></tr></thead>
+        <tbody>${ana}</tbody>
+      </table></div>
+      <div class="note">Procurement constraint: when an origin's harvest starts in the current month, exclude collection for that month and begin procurement from the following month.</div>
+    </div>`;
 }
-function renderDecisionFob(j){
-  const bySym={}; j.items.forEach(i=>{ bySym[i.sym]=i; });
-  document.querySelectorAll('[data-fob-sym]').forEach(cell=>{
-    const p=bySym[cell.getAttribute('data-fob-sym')];
-    if(p) cell.innerHTML = `${fmtPrice(p.price)} ${p.unit} · <span class="${p.chgPct>=0?'up':'dn'}">${p.chgPct>=0?'+':''}${p.chgPct.toFixed(2)}%</span>`;
-  });
+
+/* ---------- MARKET NEWS & IMPACT ---------- */
+function renderNews(){
+  const C = window.CROP_DATA;
+  const items = (C.news||[]).map(n=>{
+    return `<div class="n">
+      <div class="top"><span class="t">${esc(n.title)}</span><span class="d">${esc(n.d)}</span><span class="cm-tag">${esc(n.commodity)}</span><span class="risk ${n.risk}">${n.risk.toUpperCase()}</span></div>
+      <div class="imp">${esc(n.impact)}</div>
+    </div>`;
+  }).join('');
+  $('news').innerHTML = `
+    <div class="card"><div class="h"><span class="ic">📰</span><span class="t">Market News & Impact Analysis</span><span class="sub">latest import-relevant events</span></div>
+      <div class="news">${items}</div>
+    </div>
+    <div class="card"><div class="h"><span class="ic">🔗</span><span class="t">News source documents</span><span class="sub">open from the register</span></div>
+      <div class="items">
+        <a class="item" href="https://docs.google.com/spreadsheets/d/1wtqkLV2p6OkeygJ0K7e0X3lAXXCquO-3A0_gG00t7Ks/edit?gid=0" target="_blank"><span class="it">Updated News (AEL)</span><span class="ext">↗</span></a>
+        <a class="item" href="https://docs.google.com/document/d/1LN02mWlXbcKOosiKrbRHOKD511rdJQQWrXwjoHtMwkc/edit?tab=t.0" target="_blank"><span class="it">Updated News — Fastmarket</span><span class="ext">↗</span></a>
+        <a class="item" href="https://docs.google.com/document/d/1bOIOIcVadzrhYK0B3zwEAM0EpNo-iIH6Ym2sbc3ySH4/edit?tab=t.0" target="_blank"><span class="it">Weekly Supply-side Summary (AEL)</span><span class="ext">↗</span></a>
+        <a class="item" href="https://docs.google.com/document/d/1joLwGkIlnO5m6RUHhrnRpft_do50vczt-bB-1E1G0hA/edit" target="_blank"><span class="it">Weekly Summary (AEL)</span><span class="ext">↗</span></a>
+      </div>
+    </div>`;
+}
+
+/* ---------- meetings dropdown ---------- */
+function renderMeetings(){
+  const C = window.CROP_DATA;
+  const ms = C.meetings || [];
+  const latest = ms.find(m=>m.status==='latest') || ms[ms.length-1];
+  if (state.meeting==null) state.meeting = latest ? latest.label : null;
+  $('meeting').innerHTML = ms.map(m=>`<option value="${m.label}" ${m.label===state.meeting?'selected':''}>${m.label} (${m.month})</option>`).join('');
+  if (latest) $('meetingPill').textContent = '#' + latest.n;
+}
+
+/* ---------- refresh (re-pull register data) ---------- */
+async function loadScript(name){
+  const r = await fetch(name + '?cb=' + Date.now(), {cache:'no-store'});
+  if (!r.ok) throw new Error(name + ' http ' + r.status);
+  const txt = await r.text();
+  const fn = new Function(txt + '\n;return ' + (name==='ctr-data.js' ? 'window.CTR_DATA' : 'window.CROP_DATA') + ';');
+  return fn();
+}
+
+async function refreshAll(){
+  const btn = $('refreshBtn');
+  btn.classList.add('spinning');
+  try {
+    const [ctr, crop] = await Promise.all([loadScript('ctr-data.js'), loadScript('ctr-crop.js')]);
+    window.CTR_DATA = ctr;
+    window.CROP_DATA = crop;
+    renderMeetings();
+    render();
+    $('lastupd').textContent = 'refreshed ' + new Date().toLocaleTimeString('en-GB',{timeZone:'Asia/Dhaka',hour12:false});
+  } catch(e) {
+    $('lastupd').textContent = 'refresh failed — ' + e.message;
+  } finally {
+    btn.classList.remove('spinning');
+  }
 }
 
 /* ---------- orchestration ---------- */
@@ -450,20 +609,30 @@ function render(){
   $('macro').style.display = v==="macro"?"":"none";
   $('dive').style.display = v==="dive"?"":"none";
   $('decision').style.display = v==="decision"?"":"none";
+  $('crop').style.display = v==="crop"?"":"none";
+  $('news').style.display = v==="news"?"":"none";
   $('commodityField').style.display = v==="dive"?"":"none";
+  $('cropComField').style.display = v==="crop"?"":"none";
   $('nItems').textContent = Object.keys(window.CTR_DATA).length + " commodities";
-  if(v==="macro") renderMacro(); else if(v==="dive") renderDive(); else renderDecision();
+  if(v==="macro") renderMacro();
+  else if(v==="dive") renderDive();
+  else if(v==="decision") renderDecision();
+  else if(v==="crop") renderCrop();
+  else if(v==="news") renderNews();
 }
 
 $('seg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; state.view=b.dataset.view; render(); });
 $('commodity').addEventListener('change',e=>{ state.commodity=e.target.value; renderDive(); });
+$('cropCommodity').addEventListener('change',e=>{ state.cropCommodity=e.target.value; renderCrop(); });
 $('dive').addEventListener('click',e=>{ const b=e.target.closest('button[data-side]'); if(!b)return; state.side=b.dataset.side; renderDive(); });
+$('meeting').addEventListener('change',e=>{ state.meeting=e.target.value; });
+$('refreshBtn').addEventListener('click', refreshAll);
 
 function tick(){ const d=new Date(); $('clock').textContent = d.toLocaleString('en-GB',{timeZone:'Asia/Dhaka',hour12:false}); }
 setInterval(tick,1000); tick();
+renderMeetings();
 render();
-refreshPrices();
-setInterval(refreshPrices,30000);
+$('lastupd').textContent = 'loaded ' + new Date().toLocaleTimeString('en-GB',{timeZone:'Asia/Dhaka',hour12:false});
 </script>
 </body>
 </html>
