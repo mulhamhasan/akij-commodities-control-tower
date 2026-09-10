@@ -197,6 +197,12 @@
   .news .n .risk{font-size:10px;font-weight:800;padding:2px 8px;border-radius:10px}
   .risk.high{background:#3a1f27;color:var(--bear)} .risk.moderate{background:#3a3120;color:var(--warn)} .risk.low{background:#14351f;color:var(--bull)}
   .news .n .imp{margin-top:7px;font-size:12.5px;color:var(--muted);line-height:1.6}
+  .n-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:9px}
+  @media(max-width:700px){.n-grid{grid-template-columns:1fr}}
+  .n-lbl{font-size:10px;text-transform:uppercase;letter-spacing:.5px;color:var(--faint);margin-bottom:3px;font-weight:700}
+  .n-txt{font-size:12.5px;color:var(--muted);line-height:1.55}
+  .n-sol{margin-top:10px;font-size:12.5px;color:var(--text);background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:8px 11px;line-height:1.55}
+  .n-sol b{color:var(--accent2)}
 
   /* Insights */
   .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
@@ -599,16 +605,39 @@ const DECISION = {
   ]
 };
 
+const FALLBACK_ORIGINS = {
+  'Corn': ['Argentina','Brazil','USA'],
+  'SBM (Meal)': ['Brazil','India','USA'],
+  'SBM / Soybean Meal': ['Brazil','India','USA'],
+  'Canola': ['Canada','Australia'],
+  'Mustard': ['Bangladesh (local)'],
+  'Yellow Peas': ['Canada','Russia'],
+  'Chickpeas': ['Australia','Canada'],
+  'Palm Oil': ['Indonesia','Malaysia'],
+  'Coal': ['Indonesia','Australia'],
+  'Jute': ['Bangladesh (local)']
+};
+function decisionOrigins(cm){
+  const cal = (window.CROP_DATA.calendars||{})[cm];
+  if (cal) {
+    const recs = recommendedOrigins(cm);
+    if (recs.length) return recs.map(r=>r.country);
+  }
+  return FALLBACK_ORIGINS[cm] || [];
+}
+
 function renderDecision(){
-  const th = `<tr><th>Commodity</th><th>Crop Calendar</th><th>Weather & Shipping</th><th>FOB Price</th><th>Latest News</th><th style="text-align:center">Recommendation</th></tr>`;
+  const th = `<tr><th>Commodity</th><th>Crop Calendar</th><th>Weather & Shipping</th><th>FOB Price</th><th>Latest News</th><th>Recommended origins</th><th style="text-align:center">Recommendation</th></tr>`;
   const rows = DECISION.rows.map(r=>{
     const sig=(f)=>`<span class="sig ${f.t}">${f.s}</span>`;
+    const origins = decisionOrigins(r.cm);
     return `<tr>
       <td class="cm">${r.cm}</td>
       <td>${sig(r.cal)}<span class="factor-txt">${r.cal.x}</span></td>
       <td>${sig(r.wx)}<span class="factor-txt">${r.wx.x}</span></td>
       <td>${sig(r.fob)}<span class="fobval">${r.fob.x}</span></td>
       <td>${sig(r.news)}<span class="factor-txt">${r.news.x}</span></td>
+      <td>${origins.slice(0,4).map(o=>`<span class="chip end">${esc(o)}</span>`).join(' ')}${origins.length>4?`<span style="color:var(--faint);font-size:10px"> +${origins.length-4} more</span>`:''}${origins.length===0?'<span style="color:var(--faint)">—</span>':''}</td>
       <td style="text-align:center"><span class="rec ${r.rec.t}">${r.rec.l}</span><div class="conv">conviction ${'<i style="background:#34d399"></i>'.repeat(r.rec.conv==='HIGH'?3:r.rec.conv==='MOD-HIGH'?2.5:r.rec.conv==='MODERATE'?2:r.rec.conv==='LOW-MOD'?1.5:1)}</div></td>
     </tr>`;
   }).join('');
@@ -703,6 +732,51 @@ function harvestCompletionHtml(){
     </div>`;
 }
 
+/* Harvest freshness rule for procurement recommendation:
+   Argentina -> suggest if harvest ended within 6 months; others -> within 4 months. */
+function harvestFreshness(c){
+  const cur = currentMonthInfo();
+  const ph = c.m;
+  const curPhase = ph[cur.name] || 'inactive';
+  if (curPhase === 'harvesting') return 0;
+  for (let i=1;i<=12;i++){
+    const k=(((cur.idx-i)%12)+12)%12;
+    if (ph[MONTHS[k]]==='harvesting') return i;
+  }
+  return null;
+}
+function recommendedOrigins(com){
+  const cal = (window.CROP_DATA.calendars||{})[com];
+  if (!cal) return [];
+  const seen = new Set();
+  const out = [];
+  cal.forEach(c=>{
+    const f = harvestFreshness(c);
+    if (f === null) return;
+    const isArg = (c.country||'').toLowerCase().indexOf('argentina') !== -1;
+    const th = isArg ? 6 : 4;
+    if (f <= th && !seen.has(c.country)) { seen.add(c.country); out.push({country:c.country, months:f, arg:isArg}); }
+  });
+  out.sort((a,b)=>a.months-b.months);
+  return out;
+}
+function procurementHtml(){
+  const C = window.CROP_DATA;
+  const coms = Object.keys(C.calendars||{});
+  const rows = coms.map(com=>{
+    const recs = recommendedOrigins(com);
+    const chips = recs.length
+      ? recs.map(r=>`<span class="chip buy" title="harvest ended ${r.months} month(s) ago${r.arg?' · Argentina (≤6mo)':''}">${esc(r.country)}${r.months===0?' · now':''}</span>`).join('')
+      : '<span style="color:var(--faint)">— none fresh</span>';
+    return `<div class="hc-g"><div class="hc-h">${esc(com)}<small>${recs.length} origin(s)</small></div><div class="hc-list">${chips}</div></div>`;
+  }).join('');
+  return `
+    <div class="card"><div class="h"><span class="ic">🛒</span><span class="t">Procurement Recommendation</span><span class="sub">harvest-freshness rule</span></div>
+      ${rows}
+      <div class="note">Rule: suggest an origin if its harvest ended within <b>6 months (Argentina)</b> or <b>4 months (others)</b>; currently harvesting = freshest. Origins outside the window are excluded.</div>
+    </div>`;
+}
+
 function renderCrop(){
   const C = window.CROP_DATA;
   const cur = currentMonthInfo();
@@ -717,7 +791,7 @@ function renderCrop(){
       const isCur = r.m===cur.name;
       return `<tr><td class="cm" style="${isCur?'color:var(--accent2)':''}">${r.m}${isCur?' ← now':''}</td><td>${r.situation}</td><td class="fobval">${r.strategy}</td><td>${r.origin}</td></tr>`;
     }).join('');
-    $('crop').innerHTML = harvestCompletionHtml() + `
+    $('crop').innerHTML = procurementHtml() + harvestCompletionHtml() + `
       <div class="card"><div class="h"><span class="ic">🌽</span><span class="t">Corn — Crop Year & Procurement Strategy</span><span class="sub">current month: ${cur.full}</span></div>
       <div class="dm-wrap"><table class="dm-table" style="min-width:520px"><thead><tr><th>Month</th><th>Market Situation</th><th>Procurement Strategy</th><th>Best Origin</th></tr></thead><tbody>${rows}</tbody></table></div>
       <div class="note">Sourcing rule: cover the current month's "Best Origin" window; pivot to the next origin as harvests rotate (Brazil → Argentina → USA).</div>
@@ -752,7 +826,7 @@ function renderCrop(){
     </tr>`;
   }).join('');
 
-  $('crop').innerHTML = harvestCompletionHtml() + `
+  $('crop').innerHTML = procurementHtml() + harvestCompletionHtml() + `
     <div class="card"><div class="h"><span class="ic">🗓️</span><span class="t">${com} — Crop Calendar</span><span class="sub">current month: ${cur.full}</span></div>
       <div class="cc-wrap"><table class="cc-table"><thead>${head}</thead><tbody>${body}</tbody></table></div>
       <div class="cc-legend">
@@ -772,16 +846,28 @@ function renderCrop(){
 }
 
 /* ---------- MARKET NEWS & IMPACT ---------- */
+let newsCom = 'All';
+function setNewsCom(v){ newsCom = v; renderNews(); }
 function renderNews(){
   const C = window.CROP_DATA;
-  const items = (C.news||[]).map(n=>`
+  const all = C.news || [];
+  const coms = ['All'].concat(Array.from(new Set(all.map(n=>n.commodity))));
+  if (!coms.includes(newsCom)) newsCom = 'All';
+  const filtered = newsCom === 'All' ? all : all.filter(n=>n.commodity===newsCom);
+  const sel = `<select id="newsComSel" onchange="setNewsCom(this.value)">${coms.map(c=>`<option ${c===newsCom?'selected':''}>${c}</option>`).join('')}</select>`;
+  const items = filtered.map(n=>`
     <div class="n">
-      <div class="top"><span class="t">${esc(n.title)}</span><span class="d">${esc(n.d)}</span><span class="cm-tag">${esc(n.commodity)}</span><span class="risk ${n.risk}">${n.risk.toUpperCase()}</span></div>
-      <div class="imp">${esc(n.impact)}</div>
+      <div class="top"><span class="t">${esc(n.title)}</span><span class="d">${esc(n.d)}</span><span class="risk ${n.risk}">${n.risk.toUpperCase()}</span></div>
+      <div class="n-grid">
+        <div class="n-col"><div class="n-lbl">Summary</div><div class="n-txt">${esc(n.summary)}</div></div>
+        <div class="n-col"><div class="n-lbl">Impact</div><div class="n-txt">${esc(n.impact)}</div></div>
+      </div>
+      <div class="n-sol"><b>Solution:</b> ${esc(n.solution)}</div>
     </div>`).join('');
   $('news').innerHTML = `
-    <div class="card"><div class="h"><span class="ic">📰</span><span class="t">Market News & Impact Analysis</span><span class="sub">latest import-relevant events</span></div>
-      <div class="news">${items}</div>
+    <div class="card"><div class="h"><span class="ic">📰</span><span class="t">Market News &amp; Impact</span><span class="sub">summary · impact · solution</span></div>
+      <div class="field" style="margin-bottom:12px"><label>Commodity</label>${sel}</div>
+      <div class="news">${items || '<div class="empty">No news for this commodity.</div>'}</div>
     </div>
     <div class="card"><div class="h"><span class="ic">🔗</span><span class="t">News source documents</span><span class="sub">open from the register</span></div>
       <div class="items">
