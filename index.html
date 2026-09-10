@@ -253,13 +253,9 @@
         <button data-view="decision">Decision Matrix</button>
         <button data-view="news">News &amp; Impact</button>
       </div>
-      <div class="field" id="commodityField" style="display:none">
-        <label>Commodity</label>
-        <select id="commodity"></select>
-      </div>
-      <div class="field" id="cropComField" style="display:none">
+      <div class="field" id="commodityField">
         <label>Crop</label>
-        <select id="cropCommodity"></select>
+        <select id="commodity"></select>
       </div>
       <div class="field" id="reportTypeField">
         <label>Report Type</label>
@@ -345,7 +341,7 @@ const REPORT_TYPES = [
 const MONTHS = (window.CROP_DATA && window.CROP_DATA.months) || ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 const $=id=>document.getElementById(id);
-const state={view:"macro", commodity:null, side:"supply", cropCommodity:null, meeting:null, reportType:"all"};
+const state={view:"macro", commodity:null, side:"supply", meeting:null, reportType:"all"};
 
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");}
 function openLink(u){ if(u) window.open(u,"_blank"); }
@@ -545,11 +541,13 @@ function meetingLink(i){
   if (state.meeting!=null && i.meetings && i.meetings[state.meeting]) return i.meetings[state.meeting];
   return i.link;
 }
-function renderDive(){
+function renderCommodity(){
   const coms = Object.keys(window.CTR_DATA);
-  const sel=$('commodity');
   if(!state.commodity) state.commodity = coms[0];
-  sel.innerHTML = coms.map(c=>`<option ${c===state.commodity?'selected':''}>${c}</option>`).join('');
+  $('commodity').innerHTML = coms.map(c=>`<option ${c===state.commodity?'selected':''}>${c}</option>`).join('');
+}
+function renderDive(){
+  renderCommodity();
   const d = window.CTR_DATA[state.commodity] || {supply:[],demand:[],finance:[]};
 
   const rt = REPORT_TYPES.find(r=>r.key===state.reportType);
@@ -822,11 +820,8 @@ function procurementHtml(){
 function renderCrop(){
   const C = window.CROP_DATA;
   const cur = currentMonthInfo();
-  const coms = ['Wheat','Maize','Soyabean','Lentil','Mustard','Corn'];
-  const sel=$('cropCommodity');
-  if(!state.cropCommodity || !coms.includes(state.cropCommodity)) state.cropCommodity = 'Wheat';
-  sel.innerHTML = coms.map(c=>`<option ${c===state.cropCommodity?'selected':''}>${c}</option>`).join('');
-  const com = state.cropCommodity;
+  renderCommodity();
+  const com = state.commodity || 'Wheat';
 
   if (com === 'Corn') {
     const rows = C.cornStrategy.map(r=>{
@@ -998,9 +993,9 @@ function render(){
   $('decision').style.display = v==="decision"?"":"none";
   $('crop').style.display = v==="crop"?"":"none";
   $('news').style.display = v==="news"?"":"none";
-  $('commodityField').style.display = v==="dive"?"":"none";
-  $('cropComField').style.display = v==="crop"?"":"none";
+  $('commodityField').style.display = "";
   $('reportTypeField').style.display = "";
+  renderCommodity();
   renderReportType();
   $('nItems').textContent = Object.keys(window.CTR_DATA).length + " commodities";
   if(v==="macro") renderMacro();
@@ -1011,8 +1006,7 @@ function render(){
 }
 
 $('seg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; state.view=b.dataset.view; if(state.view!=="crop" && state.reportType==="crop") state.reportType="all"; render(); });
-$('commodity').addEventListener('change',e=>{ state.commodity=e.target.value; renderDive(); });
-$('cropCommodity').addEventListener('change',e=>{ state.cropCommodity=e.target.value; renderCrop(); });
+$('commodity').addEventListener('change',e=>{ state.commodity=e.target.value; render(); });
 $('reportType').addEventListener('change',e=>{ state.reportType=e.target.value; state.view = state.reportType==="crop" ? "crop" : "dive"; render(); });
 $('dive').addEventListener('click',e=>{ const b=e.target.closest('button[data-side]'); if(!b)return; state.side=b.dataset.side; renderDive(); });
 $('meeting').addEventListener('change',e=>{ state.meeting=parseInt(e.target.value,10); render(); });
