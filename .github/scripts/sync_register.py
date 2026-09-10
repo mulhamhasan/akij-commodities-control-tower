@@ -51,7 +51,11 @@ def get_access_token():
         "grant_type": "refresh_token",
     }).encode()
     req = urllib.request.Request("https://oauth2.googleapis.com/token", data=data, method="POST")
-    return json.load(urllib.request.urlopen(req, timeout=30))["access_token"]
+    try:
+        return json.load(urllib.request.urlopen(req, timeout=30))["access_token"]
+    except urllib.error.HTTPError as e:
+        print("token refresh failed HTTP %s: %s" % (e.code, e.read().decode()[:500]))
+        raise
 
 
 def download_xlsx(token):
