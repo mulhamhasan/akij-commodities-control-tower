@@ -216,6 +216,13 @@
   .insight-line .dot{color:var(--accent2);font-weight:800;flex-shrink:0}
   .chip{display:inline-block;font-size:10.5px;font-weight:700;padding:2px 8px;border-radius:9px;margin:2px 2px 0 0}
   .chip.buy{background:#14351f;color:var(--bull)} .chip.plant{background:#0c2f1d;color:#4ade80} .chip.gap{background:#3a1f27;color:var(--bear)}
+  .chip.end{background:var(--active);color:var(--accent)}
+  .chip.old{background:var(--input);color:var(--faint)}
+  .hc-g{display:flex;gap:12px;padding:7px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+  .hc-g:last-child{border-bottom:none}
+  .hc-h{font-weight:700;min-width:168px;color:var(--text);font-size:12px;flex-shrink:0}
+  .hc-h small{display:block;color:var(--faint);font-weight:400;font-size:10px}
+  .hc-list{flex:1;line-height:2}
   .chartbox{position:relative;height:300px}
   .chartbox.tall{height:340px}
   .chartbox.short{height:220px}
@@ -651,6 +658,51 @@ function ccGlyph(ph){
   return '';
 }
 
+/* Recent harvest completions — how long ago each origin's harvest ended */
+function harvestCompletions(){
+  const C = window.CROP_DATA;
+  const cur = currentMonthInfo();
+  const items = [];
+  Object.entries(C.calendars).forEach(([com, cal])=>{
+    (cal||[]).forEach(c=>{
+      const ph = c.m;
+      const curPhase = ph[cur.name] || 'inactive';
+      if (curPhase === 'harvesting') {
+        let rem = 0;
+        for (let i=0;i<12;i++){ const k=(cur.idx+i)%12; if(ph[MONTHS[k]]==='harvesting') rem++; else break; }
+        items.push({ com, country:c.country, season:c.season, type:'ending', m: rem-1 }); // m=0 → ends this month
+      } else {
+        let ago = null;
+        for (let i=1;i<=12;i++){ const k=(((cur.idx-i)%12)+12)%12; if(ph[MONTHS[k]]==='harvesting'){ ago=i; break; } }
+        if (ago !== null) items.push({ com, country:c.country, season:c.season, type:'ended', m: ago });
+      }
+    });
+  });
+  return items;
+}
+function harvestCompletionHtml(){
+  const items = harvestCompletions();
+  const label = it => `${esc(it.country)}${it.season?' <span style="color:var(--faint)">'+esc(it.season)+'</span>':''}`;
+  const chips = (arr, cls) => arr.map(it=>`<span class="chip ${cls}">${esc(it.com)} · ${label(it)}</span>`).join('');
+  const g = [
+    { t:'Ending this month', d:'harvest completes now', arr: items.filter(i=>i.type==='ending' && i.m===0), cls:'buy' },
+    { t:'Ended last month', d:'1 month ago', arr: items.filter(i=>i.type==='ended' && i.m===1), cls:'end' },
+    { t:'Ended 2 months ago', d:'2 months ago', arr: items.filter(i=>i.type==='ended' && i.m===2), cls:'end' },
+    { t:'Ended 3+ months ago', d:'older harvest', arr: items.filter(i=>i.type==='ended' && i.m>=3), cls:'old' }
+  ];
+  const rows = g.map(x=>`
+    <div class="hc-g">
+      <div class="hc-h">${x.t}<small>${x.d}</small></div>
+      <div class="hc-list">${x.arr.length ? chips(x.arr, x.cls) : '<span style="color:var(--faint)">— none</span>'}</div>
+    </div>`).join('');
+  const ongoing = items.filter(i=>i.type==='ending' && i.m>=1).length;
+  return `
+    <div class="card"><div class="h"><span class="ic">🧺</span><span class="t">Recent Harvest Completions</span><span class="sub">all origins · ${currentMonthInfo().full}</span></div>
+      ${rows}
+      <div class="note" style="margin-top:8px">${ongoing} origin(s) still harvesting (ending in a later month). Recently-ended harvests = freshest available physical supply.</div>
+    </div>`;
+}
+
 function renderCrop(){
   const C = window.CROP_DATA;
   const cur = currentMonthInfo();
@@ -665,7 +717,7 @@ function renderCrop(){
       const isCur = r.m===cur.name;
       return `<tr><td class="cm" style="${isCur?'color:var(--accent2)':''}">${r.m}${isCur?' ← now':''}</td><td>${r.situation}</td><td class="fobval">${r.strategy}</td><td>${r.origin}</td></tr>`;
     }).join('');
-    $('crop').innerHTML = `
+    $('crop').innerHTML = harvestCompletionHtml() + `
       <div class="card"><div class="h"><span class="ic">🌽</span><span class="t">Corn — Crop Year & Procurement Strategy</span><span class="sub">current month: ${cur.full}</span></div>
       <div class="dm-wrap"><table class="dm-table" style="min-width:520px"><thead><tr><th>Month</th><th>Market Situation</th><th>Procurement Strategy</th><th>Best Origin</th></tr></thead><tbody>${rows}</tbody></table></div>
       <div class="note">Sourcing rule: cover the current month's "Best Origin" window; pivot to the next origin as harvests rotate (Brazil → Argentina → USA).</div>
@@ -700,7 +752,7 @@ function renderCrop(){
     </tr>`;
   }).join('');
 
-  $('crop').innerHTML = `
+  $('crop').innerHTML = harvestCompletionHtml() + `
     <div class="card"><div class="h"><span class="ic">🗓️</span><span class="t">${com} — Crop Calendar</span><span class="sub">current month: ${cur.full}</span></div>
       <div class="cc-wrap"><table class="cc-table"><thead>${head}</thead><tbody>${body}</tbody></table></div>
       <div class="cc-legend">
@@ -742,12 +794,15 @@ function renderNews(){
 }
 
 /* ---------- meetings dropdown ---------- */
+function meetingList(){
+  if (window.MEETINGS && window.MEETINGS.length) return window.MEETINGS;
+  return (window.CROP_DATA && window.CROP_DATA.meetings) || [];
+}
 function renderMeetings(){
-  const C = window.CROP_DATA;
-  const ms = C.meetings || [];
-  const latest = ms.find(m=>m.status==='latest') || ms[ms.length-1];
+  const ms = meetingList();
+  const latest = ms[ms.length-1];
   if (state.meeting==null) state.meeting = latest ? latest.label : null;
-  $('meeting').innerHTML = ms.map(m=>`<option value="${m.label}" ${m.label===state.meeting?'selected':''}>${m.label}${m.status==='latest'?' (latest)':''}</option>`).join('');
+  $('meeting').innerHTML = ms.map((m,i)=>`<option value="${m.label}" ${m.label===state.meeting?'selected':''}>${m.label}${i===ms.length-1?' (latest)':''}</option>`).join('');
   if (latest) $('meetingPill').textContent = '#' + latest.n;
 }
 
