@@ -251,7 +251,6 @@
         <button class="on" data-view="macro">Macro</button>
         <button data-view="dive">Deep Dive</button>
         <button data-view="decision">Decision Matrix</button>
-        <button data-view="crop">Crop Calendar</button>
         <button data-view="news">News &amp; Impact</button>
       </div>
       <div class="field" id="commodityField" style="display:none">
@@ -261,6 +260,10 @@
       <div class="field" id="cropComField" style="display:none">
         <label>Crop</label>
         <select id="cropCommodity"></select>
+      </div>
+      <div class="field" id="reportTypeField">
+        <label>Report Type</label>
+        <select id="reportType"></select>
       </div>
       <div class="field" id="meetingField">
         <label>Meeting</label>
@@ -327,10 +330,22 @@ const MACRO = {
 };
 
 const SIDE_META = { supply:{label:"Supply Side", tag:"supply", ic:"🌾"}, demand:{label:"Demand Side", tag:"demand", ic:"🛒"}, finance:{label:"Finance Side", tag:"finance", ic:"💰"} };
+const REPORT_TYPES = [
+  {key:"all",         label:"All Reports",                                 group:null},
+  {key:"calproc",     label:"Calendar & Procurement Strategy",             group:"Corp Calendar, Procurement Strategy & Commentary"},
+  {key:"weather",     label:"Weather calendar and shipping risk matrix",   group:"Weather calendar and shipping risk matrix"},
+  {key:"consignment", label:"Upcoming Consignment",                        group:"Upcoming Consignment"},
+  {key:"competitor",  label:"Competitor Price Report",                     group:"Competitor Price Report"},
+  {key:"offer",       label:"Offer Price",                                 group:"Offer Price"},
+  {key:"vessel",      label:"Latest Vessel Arrival",                       group:"Latest Vessel Arrival"},
+  {key:"wheatmkt",    label:"Wheat Market Analysis",                       group:"Wheat Market Analysis"},
+  {key:"aging",       label:"Aging Report",                                group:"Aging Rpeort"},
+  {key:"crop",        label:"Crop Calendar",                               group:null}
+];
 const MONTHS = (window.CROP_DATA && window.CROP_DATA.months) || ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
 const $=id=>document.getElementById(id);
-const state={view:"macro", commodity:null, side:"supply", cropCommodity:null, meeting:null};
+const state={view:"macro", commodity:null, side:"supply", cropCommodity:null, meeting:null, reportType:"all"};
 
 function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");}
 function openLink(u){ if(u) window.open(u,"_blank"); }
@@ -518,7 +533,8 @@ function renderMacro(){
       <div class="card"><div class="h"><span class="ic">📘</span><span class="t">How to use</span><span class="sub">tabs → dropdown → analysis</span></div>
         <div style="color:var(--muted);font-size:13px;line-height:1.7">
           <b style="color:var(--accent)">Insights</b> is the auto-analysis of the register. <b>Deep Dive</b> opens each report's live source sheet.
-          <b>Crop Calendar</b> shows harvest/planting windows per origin. <b>News &amp; Impact</b> lists this month's import-relevant events.
+          Use the <b>Report Type</b> dropdown to jump to a specific report type (e.g. Competitor Price, Offer Price) or open the
+          <b>Crop Calendar</b>. <b>News &amp; Impact</b> lists this month's import-relevant events.
           Click <b>↻ Refresh</b> to pull the latest register snapshot.</div>
       </div>
     </div>`;
@@ -535,6 +551,25 @@ function renderDive(){
   if(!state.commodity) state.commodity = coms[0];
   sel.innerHTML = coms.map(c=>`<option ${c===state.commodity?'selected':''}>${c}</option>`).join('');
   const d = window.CTR_DATA[state.commodity] || {supply:[],demand:[],finance:[]};
+
+  const rt = REPORT_TYPES.find(r=>r.key===state.reportType);
+  if (rt && rt.group) {
+    const matches = [];
+    Object.keys(SIDE_META).forEach(s=>{
+      (d[s]||[]).forEach(i=>{ if(i.group===rt.group) matches.push({meta:SIDE_META[s], i}); });
+    });
+    const list = matches.map(m=>{
+      const href = meetingLink(m.i);
+      return href
+        ? `<a class="item" href="${href}" target="_blank"><span class="side-tag ${m.meta.tag}"></span><span class="it">${esc(m.i.item)}</span><span class="tl">${esc(m.meta.label)} · ${esc(m.i.timeline)}</span><span class="ext">↗</span></a>`
+        : `<div class="item nolink"><span class="side-tag ${m.meta.tag}"></span><span class="it">${esc(m.i.item)}</span><span class="tl">${esc(m.meta.label)} · ${esc(m.i.timeline)}</span><span class="ext">no link</span></div>`;
+    }).join('');
+    $('dive').innerHTML = list
+      ? `<div class="grp"><div class="gname">${rt.label} — ${state.commodity}</div><div class="items">${list}</div></div>`
+      : `<div class="empty">No "${rt.label}" reports for ${state.commodity}.</div>`;
+    return;
+  }
+
   const tabs = Object.keys(SIDE_META).map(s=>{
     const meta=SIDE_META[s]; const n=(d[s]||[]).length;
     return `<button class="${state.side===s?'on':''}" data-side="${s}">${meta.ic} ${meta.label} <span class="cnt">${n}</span></button>`;
@@ -911,6 +946,9 @@ function renderMeetings(){
   $('meeting').innerHTML = ms.map((m,i)=>`<option value="${m.n}" ${m.n===state.meeting?'selected':''}>${m.label}${i===ms.length-1?' (latest)':''}</option>`).join('');
   if (latest) $('meetingPill').textContent = '#' + latest.n;
 }
+function renderReportType(){
+  $('reportType').innerHTML = REPORT_TYPES.map(rt=>`<option value="${rt.key}" ${rt.key===state.reportType?'selected':''}>${rt.label}</option>`).join('');
+}
 
 /* ---------- refresh ---------- */
 async function loadScript(name){
@@ -962,6 +1000,8 @@ function render(){
   $('news').style.display = v==="news"?"":"none";
   $('commodityField').style.display = v==="dive"?"":"none";
   $('cropComField').style.display = v==="crop"?"":"none";
+  $('reportTypeField').style.display = "";
+  renderReportType();
   $('nItems').textContent = Object.keys(window.CTR_DATA).length + " commodities";
   if(v==="macro") renderMacro();
   else if(v==="dive") renderDive();
@@ -970,9 +1010,10 @@ function render(){
   else if(v==="news") renderNews();
 }
 
-$('seg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; state.view=b.dataset.view; render(); });
+$('seg').addEventListener('click',e=>{ const b=e.target.closest('button'); if(!b)return; state.view=b.dataset.view; if(state.view!=="crop" && state.reportType==="crop") state.reportType="all"; render(); });
 $('commodity').addEventListener('change',e=>{ state.commodity=e.target.value; renderDive(); });
 $('cropCommodity').addEventListener('change',e=>{ state.cropCommodity=e.target.value; renderCrop(); });
+$('reportType').addEventListener('change',e=>{ state.reportType=e.target.value; state.view = state.reportType==="crop" ? "crop" : "dive"; render(); });
 $('dive').addEventListener('click',e=>{ const b=e.target.closest('button[data-side]'); if(!b)return; state.side=b.dataset.side; renderDive(); });
 $('meeting').addEventListener('change',e=>{ state.meeting=parseInt(e.target.value,10); render(); });
 $('refreshBtn').addEventListener('click', refreshAll);
