@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Akij Commodities Limited — Live Control Tower</title>
+<title>Akij Commodities — Market Intelligence</title>
 <style>
   :root{
     --bg:#0a0f1c; --panel:#101828; --panel2:#0c1424; --border:#1e2a44;
@@ -238,8 +238,7 @@
 <body>
 <div class="app">
   <div class="topbar">
-    <div class="logo">AKIJ COMMODITIES <b>LIVE CONTROL TOWER</b></div>
-    <div class="live"><span class="dot"></span> monitoring Chittagong · Kutubdia · Mongla</div>
+    <div class="logo">AKIJ COMMODITIES <b>MARKET INTELLIGENCE</b></div>
     <span class="clock" id="clock">—</span>
     <button class="btn" id="refreshBtn" title="Re-pull latest register data"><span class="sp">↻</span> Refresh</button>
     <button class="iconbtn" id="themeBtn" title="Toggle dark / light mode"><span id="themeIcon">🌙</span></button>
@@ -556,7 +555,6 @@ function renderDive(){
 
 /* ---------- DECISION MATRIX ---------- */
 const DECISION = {
-  date: "Execution date: 17th Marketing Meeting",
   macro: {
     tag: "BROAD GRAIN RALLY — SECURE COVERAGE",
     read: "Black Sea war disruption is driving <b>wheat (+40.8% YoY)</b>, <b>corn (+22.8%)</b> and <b>soybeans (+25.5%)</b> to multi-year highs, all with <b>upward-sloping forward curves</b>. Brent <b>$98</b> and firmer bunker add landed-cost pressure at Chittagong. As a net importer the risk is <b>asymmetric to the upside</b>: secure physical coverage and hedge price — do not wait for a pullback that may not come."
@@ -648,7 +646,7 @@ function renderDecision(){
       <div class="cm-txt">${r.c}</div></div>`).join('');
   $('decision').innerHTML = `
     <div class="dm-banner"><div class="tag">${DECISION.macro.tag}</div><div class="read">${DECISION.macro.read}</div></div>
-    <div class="note" style="margin-bottom:8px;color:var(--accent2)">${DECISION.date}</div>
+    <div class="note" style="margin-bottom:8px;color:var(--accent2)">Execution date: ${decisionDate()}</div>
     <div class="dm-wrap"><table class="dm-table">${th}${rows}</table></div>
     <div class="legend">
       <span><span class="sig bull">▲</span> supports acting now</span>
@@ -892,6 +890,19 @@ function renderNews(){
 function meetingList(){
   if (window.MEETINGS && window.MEETINGS.length) return window.MEETINGS;
   return (window.CROP_DATA && window.CROP_DATA.meetings) || [];
+}
+function meetingLabel(n){
+  const m = meetingList().find(x=>x.n===n);
+  return m ? m.label : (n + ' Meeting');
+}
+function decisionDate(){
+  const ms = meetingList();
+  if (state.meeting!=null) {
+    const m = ms.find(x=>x.n===state.meeting);
+    if (m) return m.label;
+  }
+  const latest = ms[ms.length-1];
+  return latest ? latest.label : 'Latest';
 }
 function renderMeetings(){
   const ms = meetingList();
