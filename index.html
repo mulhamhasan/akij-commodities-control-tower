@@ -877,6 +877,18 @@ $('themeBtn').addEventListener('click', toggleTheme);
 function tick(){ const d=new Date(); $('clock').textContent = d.toLocaleString('en-GB',{timeZone:'Asia/Dhaka',hour12:false}); }
 setInterval(tick,1000); tick();
 
+/* silent auto-refresh: poll ctr-data.js, re-render only when it changes */
+let lastCtrText = null;
+async function autoRefresh(){
+  try {
+    const r = await fetch('ctr-data.js?cb='+Date.now(), {cache:'no-store'});
+    const txt = await r.text();
+    if (lastCtrText === null) { lastCtrText = txt; return; }
+    if (txt !== lastCtrText) { lastCtrText = txt; await refreshAll(); }
+  } catch(e){}
+}
+setInterval(autoRefresh, 120000);
+
 let savedTheme='dark';
 try{ savedTheme = localStorage.getItem('theme') || 'dark'; }catch(e){}
 applyTheme(savedTheme);
