@@ -710,25 +710,17 @@ function harvestCompletions(){
   return items;
 }
 function harvestCompletionHtml(){
-  const items = harvestCompletions();
-  const label = it => `${esc(it.country)}${it.season?' <span style="color:var(--faint)">'+esc(it.season)+'</span>':''}`;
-  const chips = (arr, cls) => arr.map(it=>`<span class="chip ${cls}">${esc(it.com)} · ${label(it)}</span>`).join('');
-  const g = [
-    { t:'Ending this month', d:'harvest completes now', arr: items.filter(i=>i.type==='ending' && i.m===0), cls:'buy' },
-    { t:'Ended last month', d:'1 month ago', arr: items.filter(i=>i.type==='ended' && i.m===1), cls:'end' },
-    { t:'Ended 2 months ago', d:'2 months ago', arr: items.filter(i=>i.type==='ended' && i.m===2), cls:'end' },
-    { t:'Ended 3+ months ago', d:'older harvest', arr: items.filter(i=>i.type==='ended' && i.m>=3), cls:'old' }
-  ];
-  const rows = g.map(x=>`
-    <div class="hc-g">
-      <div class="hc-h">${x.t}<small>${x.d}</small></div>
-      <div class="hc-list">${x.arr.length ? chips(x.arr, x.cls) : '<span style="color:var(--faint)">— none</span>'}</div>
-    </div>`).join('');
-  const ongoing = items.filter(i=>i.type==='ending' && i.m>=1).length;
+  const C = window.CROP_DATA;
+  const coms = Object.keys(C.calendars||{});
+  const rows = coms.map(com=>{
+    const origins = originsByFreshness(com).slice(0,7);
+    const chips = origins.map(o=>`<span class="chip ${o.months===0?'buy':o.months<=2?'end':'old'}" title="${esc(com)} · ${esc(o.country)}">${esc(o.country)} · ${o.months===0?'now':o.months+'mo ago'}</span>`).join('');
+    return `<div class="hc-g"><div class="hc-h">${esc(com)}<small>top ${origins.length}</small></div><div class="hc-list">${chips || '<span style="color:var(--faint)">—</span>'}</div></div>`;
+  }).join('');
   return `
-    <div class="card"><div class="h"><span class="ic">🧺</span><span class="t">Recent Harvest Completions</span><span class="sub">all origins · ${currentMonthInfo().full}</span></div>
+    <div class="card"><div class="h"><span class="ic">🧺</span><span class="t">Recent Harvest Completions</span><span class="sub">top 7 origins · months since harvest ended</span></div>
       ${rows}
-      <div class="note" style="margin-top:8px">${ongoing} origin(s) still harvesting (ending in a later month). Recently-ended harvests = freshest available physical supply.</div>
+      <div class="note">"now" = currently harvesting · N mo ago = harvest ended N months back. Freshest = best physical supply.</div>
     </div>`;
 }
 
@@ -760,20 +752,35 @@ function recommendedOrigins(com){
   out.sort((a,b)=>a.months-b.months);
   return out;
 }
+function originsByFreshness(com){
+  const cal = (window.CROP_DATA.calendars||{})[com];
+  if (!cal) return [];
+  const seen = new Set();
+  const out = [];
+  cal.forEach(c=>{
+    const f = harvestFreshness(c);
+    if (f === null || seen.has(c.country)) return;
+    seen.add(c.country);
+    out.push({country:c.country, months:f});
+  });
+  out.sort((a,b)=>a.months-b.months);
+  return out;
+}
 function procurementHtml(){
   const C = window.CROP_DATA;
   const coms = Object.keys(C.calendars||{});
   const rows = coms.map(com=>{
     const recs = recommendedOrigins(com);
-    const chips = recs.length
-      ? recs.map(r=>`<span class="chip buy" title="harvest ended ${r.months} month(s) ago${r.arg?' · Argentina (≤6mo)':''}">${esc(r.country)}${r.months===0?' · now':''}</span>`).join('')
+    const top = recs.slice(0,7);
+    const chips = top.length
+      ? top.map(r=>`<span class="chip buy" title="harvest ended ${r.months} month(s) ago${r.arg?' · Argentina (≤6mo)':''}">${esc(r.country)}${r.months===0?' · now':''}</span>`).join('')
       : '<span style="color:var(--faint)">— none fresh</span>';
-    return `<div class="hc-g"><div class="hc-h">${esc(com)}<small>${recs.length} origin(s)</small></div><div class="hc-list">${chips}</div></div>`;
+    return `<div class="hc-g"><div class="hc-h">${esc(com)}<small>top ${top.length}${recs.length>7?' of '+recs.length:''}</small></div><div class="hc-list">${chips}</div></div>`;
   }).join('');
   return `
-    <div class="card"><div class="h"><span class="ic">🛒</span><span class="t">Procurement Recommendation</span><span class="sub">harvest-freshness rule</span></div>
+    <div class="card"><div class="h"><span class="ic">🛒</span><span class="t">Procurement Recommendation</span><span class="sub">top 7 · harvest-freshness rule</span></div>
       ${rows}
-      <div class="note">Rule: suggest an origin if its harvest ended within <b>6 months (Argentina)</b> or <b>4 months (others)</b>; currently harvesting = freshest. Origins outside the window are excluded.</div>
+      <div class="note">Rule: suggest an origin if its harvest ended within <b>6 months (Argentina)</b> or <b>4 months (others)</b>; currently harvesting = freshest. Top 7 shown, ranked by freshness.</div>
     </div>`;
 }
 
@@ -791,11 +798,11 @@ function renderCrop(){
       const isCur = r.m===cur.name;
       return `<tr><td class="cm" style="${isCur?'color:var(--accent2)':''}">${r.m}${isCur?' ← now':''}</td><td>${r.situation}</td><td class="fobval">${r.strategy}</td><td>${r.origin}</td></tr>`;
     }).join('');
-    $('crop').innerHTML = procurementHtml() + harvestCompletionHtml() + `
+    $('crop').innerHTML = `
       <div class="card"><div class="h"><span class="ic">🌽</span><span class="t">Corn — Crop Year & Procurement Strategy</span><span class="sub">current month: ${cur.full}</span></div>
       <div class="dm-wrap"><table class="dm-table" style="min-width:520px"><thead><tr><th>Month</th><th>Market Situation</th><th>Procurement Strategy</th><th>Best Origin</th></tr></thead><tbody>${rows}</tbody></table></div>
       <div class="note">Sourcing rule: cover the current month's "Best Origin" window; pivot to the next origin as harvests rotate (Brazil → Argentina → USA).</div>
-      </div>`;
+      </div>` + procurementHtml() + harvestCompletionHtml();
     return;
   }
 
@@ -826,7 +833,7 @@ function renderCrop(){
     </tr>`;
   }).join('');
 
-  $('crop').innerHTML = procurementHtml() + harvestCompletionHtml() + `
+  $('crop').innerHTML = `
     <div class="card"><div class="h"><span class="ic">🗓️</span><span class="t">${com} — Crop Calendar</span><span class="sub">current month: ${cur.full}</span></div>
       <div class="cc-wrap"><table class="cc-table"><thead>${head}</thead><tbody>${body}</tbody></table></div>
       <div class="cc-legend">
@@ -842,7 +849,7 @@ function renderCrop(){
         <tbody>${ana}</tbody>
       </table></div>
       <div class="note">Procurement constraint: when an origin's harvest starts in the current month, exclude collection for that month and begin procurement from the following month.</div>
-    </div>`;
+    </div>` + procurementHtml() + harvestCompletionHtml();
 }
 
 /* ---------- MARKET NEWS & IMPACT ---------- */
