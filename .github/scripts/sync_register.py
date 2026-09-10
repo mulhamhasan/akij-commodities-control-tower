@@ -7,6 +7,19 @@ import io, json, os, re, urllib.request, urllib.parse
 
 REGISTER_ID = os.environ.get("REGISTER_ID", "1me7vjHVAMV6Wazw4GnIzoPvvb3B_Rhz1CyDUY9FGLh4")
 
+# Upcoming Consignment source sheets: (commodity, spreadsheet_id, tab_name_or_None)
+CONSIGNMENT_SHEETS = [
+    ("Wheat", "1vyhsBInIUcv5mVAL3cA6n5NSTLjH37UTpznqkTpN7ZQ", "Argentina Wheat"),
+    ("Wheat", "1uuIyMzHXbTmaIGAz5FU4IFLSEem9qR2XF3fu3XqKWEk", None),
+    ("Lentil", "1vyhsBInIUcv5mVAL3cA6n5NSTLjH37UTpznqkTpN7ZQ", "Lentils"),
+    ("SBM / Soybean Meal", "1vyhsBInIUcv5mVAL3cA6n5NSTLjH37UTpznqkTpN7ZQ", "SBM"),
+    ("Corn", "15HW171DlvAAom1w8y2TQIW-Adqz9bZEbfXRwX-DKM3I", None),
+    ("Soyabean", "1ZlSuAzJt53fH5ptf7UHJyqqf2TzG1JCEd-JrI5tCKU0", None),
+    ("Yellow Peas", "1ck-fYqaqdcjQNutkJ-n4cUiTim0XRaQUO6aGPZYyMlk", None),
+    ("Canola", "1V41KIgFCGR1SfCi9MgHieEftPbFqFrfcplvTUBPSbr0", None),
+    ("Coal", "1vHSMoOgmsrPtNbSlivdgHrdiU5xWuSNBmaM7x1H1umY", None),
+]
+
 COMMODITY_ORDER = [
     'Wheat', 'Lentil', 'SBM / Soybean Meal', 'Corn', 'Maize', 'Soyabean',
     'Mustard', 'Yellow Peas', 'Chickpeas', 'Canola', 'Coal', 'General / Macro',
@@ -59,8 +72,12 @@ def get_access_token():
 
 
 def download_xlsx(token):
+    return download_xlsx_by_id(token, REGISTER_ID)
+
+
+def download_xlsx_by_id(token, file_id):
     url = ("https://www.googleapis.com/drive/v3/files/%s/export"
-           "?mimeType=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" % REGISTER_ID)
+           "?mimeType=application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" % file_id)
     req = urllib.request.Request(url, headers={"Authorization": "Bearer " + token})
     return urllib.request.urlopen(req, timeout=60).read()
 
@@ -154,6 +171,98 @@ def detect_meetings(wb):
     return out
 
 
+def cons_col_type(h):
+    h = re.sub(r"[^a-z0-9]", "", str(h).lower())
+    if "vessel" in h:
+        return "vessel"
+    if "seller" in h or "buyer" in h or "consignee" in h:
+        return "seller"
+    if "status" in h or "purpose" in h:
+        return "status"
+    if "eta" in h or "arrived" in h or "arrival" in h:
+        return "eta"
+    if "destination" in h or "pod" in h or "portcall" in h:
+        return "destination"
+    if "origin" in h or "country" in h:
+        return "origin"
+    if "product" in h or "commodity" in h:
+        return "commodity"
+    if h == "pol" or "loadport" in h:
+        return "port"
+    if any(k in h for k in ("cargo", "qty", "quan", "ton", "mt")):
+        return "qty"
+    if "volume" in h:
+        return "qty_volume"
+    return None
+
+
+def cons_fmt(v):
+    import datetime as dt
+    if v is None:
+        return ""
+    if isinstance(v, (dt.datetime, dt.date)):
+        return v.strftime("%d-%m-%Y")
+    if isinstance(v, float):
+        return str(int(v)) if v == int(v) else ("%.1f" % v).rstrip("0").rstrip(".")
+    return str(v).strip()
+
+
+def extract_consignment_ws(ws):
+    rows = list(ws.iter_rows(values_only=True))
+    hdr = None
+    for i, row in enumerate(rows):
+        for v in row:
+            if v is not None and re.search(r"vessel", str(v), re.I):
+                hdr = i
+                break
+        if hdr is not None:
+            break
+    if hdr is None:
+        return []
+    cols = {}
+    for c, h in enumerate(rows[hdr]):
+        t = cons_col_type(h)
+        if t and t not in cols:
+            cols[t] = c
+    out = []
+    for row in rows[hdr + 1:]:
+        if not any(cons_fmt(v) for v in row):
+            break
+        def g(t):
+            c = cols.get(t)
+            return cons_fmt(row[c]) if (c is not None and c < len(row)) else ""
+        vessel = g("vessel")
+        if not vessel:
+            continue
+        out.append({
+            "vessel": vessel, "origin": g("origin"),
+            "qty": g("qty") or g("qty_volume"), "eta": g("eta"),
+            "seller": g("seller"), "status": g("status"),
+            "destination": g("destination"), "port": g("port"),
+            "commodity": g("commodity"),
+        })
+    return out
+
+
+def build_consignments(token):
+    import openpyxl
+    cache = {}
+    result = {}
+    for com, fid, tab in CONSIGNMENT_SHEETS:
+        try:
+            if fid not in cache:
+                raw = download_xlsx_by_id(token, fid)
+                cache[fid] = openpyxl.load_workbook(io.BytesIO(raw), data_only=True)
+            wb = cache[fid]
+            ws = wb[tab] if tab else wb.worksheets[0]
+            rows = extract_consignment_ws(ws)
+        except Exception as e:
+            print("consignment skip %s: %s" % (com, e))
+            rows = []
+        result.setdefault(com, []).extend(rows)
+    return result
+
+
 def main():
     import openpyxl
 
@@ -202,6 +311,17 @@ def main():
     with open("ctr-data.js", "w") as f:
         f.write(js)
     print("generated ctr-data.js: %d items, %d commodities, %d meetings" % (len(all_rows), len(ordered), len(meetings)))
+
+    # Upcoming Consignment (best-effort; never block the main sync)
+    try:
+        consignments = build_consignments(token)
+        cjs = ("// Auto-generated from ARL/ACL \"Upcoming Consignment\" sheets. Do not edit by hand.\n"
+               "window.CONSIGNMENTS = " + json.dumps(consignments, ensure_ascii=False, separators=(",", ":")) + ";\n")
+        with open("ctr-consignment.js", "w") as f:
+            f.write(cjs)
+        print("generated ctr-consignment.js: %d commodities" % len(consignments))
+    except Exception as e:
+        print("consignment generation failed: %s" % e)
 
 
 if __name__ == "__main__":
