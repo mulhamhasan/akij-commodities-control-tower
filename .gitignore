@@ -2,3 +2,4 @@
 sync.log
 sync.err.log
 .DS_Store
+.vercel

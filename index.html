@@ -1007,10 +1007,10 @@ async function loadScript(name){
   const fn = new Function(txt + '\n;return ' + SCRIPT_GLOBALS[name] + ';');
   return fn();
 }
-// Load ctr-data: prefer the live Vercel API (/api/ctr-data), fall back to the static file.
+// Load ctr-data: prefer the live Vercel API (/api/ctrdata), fall back to the static file.
 async function loadCtrData(){
   try {
-    const r = await fetch('/api/ctr-data', {cache:'no-store'});
+    const r = await fetch('/api/ctrdata', {cache:'no-store'});
     if (r.ok) {
       const txt = await r.text();
       new Function(txt)();  // sets window.CTR_DATA + window.MEETINGS
@@ -1029,7 +1029,7 @@ async function loadCtrData(){
 }
 async function fetchCtrText(){
   try {
-    const r = await fetch('/api/ctr-data', {cache:'no-store'});
+    const r = await fetch('/api/ctrdata', {cache:'no-store'});
     if (r.ok) return await r.text();
   } catch(e) {}
   try {
