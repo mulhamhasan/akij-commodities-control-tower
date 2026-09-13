@@ -1,0 +1,7 @@
+{
+  "functions": {
+    "api/ctr-data.py": {
+      "maxDuration": 30
+    }
+  }
+}

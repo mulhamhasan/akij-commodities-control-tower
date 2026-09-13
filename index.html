@@ -286,7 +286,6 @@
   </div>
 </div>
 
-<script src="ctr-data.js"></script>
 <script src="ctr-crop.js"></script>
 <script src="ctr-consignment.js"></script>
 <script>
@@ -1000,7 +999,7 @@ function renderReportType(){
 }
 
 /* ---------- refresh ---------- */
-const SCRIPT_GLOBALS = { 'ctr-data.js':'window.CTR_DATA', 'ctr-crop.js':'window.CROP_DATA', 'ctr-consignment.js':'window.CONSIGNMENTS' };
+const SCRIPT_GLOBALS = { 'ctr-crop.js':'window.CROP_DATA', 'ctr-consignment.js':'window.CONSIGNMENTS' };
 async function loadScript(name){
   const r = await fetch(name + '?cb=' + Date.now(), {cache:'no-store'});
   if (!r.ok) throw new Error(name + ' http ' + r.status);
@@ -1008,12 +1007,42 @@ async function loadScript(name){
   const fn = new Function(txt + '\n;return ' + SCRIPT_GLOBALS[name] + ';');
   return fn();
 }
+// Load ctr-data: prefer the live Vercel API (/api/ctr-data), fall back to the static file.
+async function loadCtrData(){
+  try {
+    const r = await fetch('/api/ctr-data', {cache:'no-store'});
+    if (r.ok) {
+      const txt = await r.text();
+      new Function(txt)();  // sets window.CTR_DATA + window.MEETINGS
+      return true;
+    }
+  } catch(e) {}
+  try {
+    const r = await fetch('ctr-data.js?cb=' + Date.now(), {cache:'no-store'});
+    if (r.ok) {
+      const txt = await r.text();
+      new Function(txt)();
+      return true;
+    }
+  } catch(e) {}
+  return false;
+}
+async function fetchCtrText(){
+  try {
+    const r = await fetch('/api/ctr-data', {cache:'no-store'});
+    if (r.ok) return await r.text();
+  } catch(e) {}
+  try {
+    const r = await fetch('ctr-data.js?cb=' + Date.now(), {cache:'no-store'});
+    if (r.ok) return await r.text();
+  } catch(e) {}
+  return null;
+}
 async function refreshAll(){
   const btn = $('refreshBtn');
   btn.classList.add('spinning');
   try {
-    const [ctr, crop, cons] = await Promise.all([loadScript('ctr-data.js'), loadScript('ctr-crop.js'), loadScript('ctr-consignment.js')]);
-    window.CTR_DATA = ctr;
+    const [ctrOk, crop, cons] = await Promise.all([loadCtrData(), loadScript('ctr-crop.js'), loadScript('ctr-consignment.js')]);
     window.CROP_DATA = crop;
     window.CONSIGNMENTS = cons;
     renderMeetings();
@@ -1072,12 +1101,12 @@ $('themeBtn').addEventListener('click', toggleTheme);
 function tick(){ const d=new Date(); $('clock').textContent = d.toLocaleString('en-GB',{timeZone:'Asia/Dhaka',hour12:false}); }
 setInterval(tick,1000); tick();
 
-/* silent auto-refresh: poll ctr-data.js, re-render only when it changes */
+/* silent auto-refresh: poll ctr-data (live API), re-render only when it changes */
 let lastCtrText = null;
 async function autoRefresh(){
   try {
-    const r = await fetch('ctr-data.js?cb='+Date.now(), {cache:'no-store'});
-    const txt = await r.text();
+    const txt = await fetchCtrText();
+    if (txt === null) return;
     if (lastCtrText === null) { lastCtrText = txt; return; }
     if (txt !== lastCtrText) { lastCtrText = txt; await refreshAll(); }
   } catch(e){}
@@ -1087,9 +1116,12 @@ setInterval(autoRefresh, 120000);
 let savedTheme='dark';
 try{ savedTheme = localStorage.getItem('theme') || 'dark'; }catch(e){}
 applyTheme(savedTheme);
-renderMeetings();
-render();
-$('lastupd').textContent = 'loaded ' + new Date().toLocaleTimeString('en-GB',{timeZone:'Asia/Dhaka',hour12:false});
+(async function init(){
+  await loadCtrData();
+  renderMeetings();
+  render();
+  $('lastupd').textContent = 'loaded ' + new Date().toLocaleTimeString('en-GB',{timeZone:'Asia/Dhaka',hour12:false});
+})();
 </script>
 </body>
 </html>
