@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/ctr-data.py": {
+    "api/ctrdata.js": {
       "maxDuration": 30
     }
   }

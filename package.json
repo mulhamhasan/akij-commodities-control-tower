@@ -1,0 +1,7 @@
+{
+  "name": "akij-commodities-control-tower",
+  "private": true,
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}
