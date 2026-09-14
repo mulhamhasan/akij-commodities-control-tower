@@ -190,14 +190,28 @@ async function build() {
 }
 
 module.exports = async function handler(req, res) {
+  const t0 = Date.now();
   try {
+    // Password gate (only enforced when DASHBOARD_PASSWORD is set)
+    const expected = process.env.DASHBOARD_PASSWORD;
+    if (expected) {
+      const given = (req.headers && req.headers["x-dashboard-password"]) || "";
+      if (given !== expected) {
+        res.setHeader("Content-Type", "text/plain; charset=utf-8");
+        res.status(401).send("Unauthorized");
+        console.log("[ctrdata] 401 in " + (Date.now() - t0) + "ms");
+        return;
+      }
+    }
     const js = await build();
     res.setHeader('Content-Type', 'application/javascript; charset=utf-8');
     res.setHeader('Cache-Control', 'no-store');
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.status(200).send(js);
+    console.log("[ctrdata] 200 in " + (Date.now() - t0) + "ms");
   } catch (e) {
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
     res.status(500).send('Error: ' + e.message);
+    console.error("[ctrdata] 500 in " + (Date.now() - t0) + "ms: " + e.message);
   }
 };
