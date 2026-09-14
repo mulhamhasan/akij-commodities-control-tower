@@ -1111,7 +1111,7 @@ async function autoRefresh(){
     if (txt !== lastCtrText) { lastCtrText = txt; await refreshAll(); }
   } catch(e){}
 }
-setInterval(autoRefresh, 120000);
+setInterval(autoRefresh, 30000);
 
 let savedTheme='dark';
 try{ savedTheme = localStorage.getItem('theme') || 'dark'; }catch(e){}
